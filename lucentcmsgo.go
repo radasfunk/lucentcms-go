@@ -26,8 +26,6 @@ func NewLucentClient(channel, token, lucentUser string) *LucentClient {
 		headers["Lucent-User"] = lucentUser
 	}
 
-	fmt.Printf("Lucent headers %v\n", headers)
-
 	lucentClient := &LucentClient{
 		Channel:        channel,
 		Token:          token,
