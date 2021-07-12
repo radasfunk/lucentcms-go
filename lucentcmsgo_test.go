@@ -11,7 +11,7 @@ func init() {
 }
 
 // make sure a instance of lucentClient is being created
-func TestNewLucentClientIsCreated(t *testing.T) {
+func TestNewLucentClientIsCreatedWithExpectedValue(t *testing.T) {
 
 	channel := env.Get("LUCENTV3_CHANNEL")
 	token := env.Get("LUCENTV3_TOKEN")
