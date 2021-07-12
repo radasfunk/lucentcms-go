@@ -27,6 +27,11 @@ var (
 		"files":      true,
 		"files/":     true,
 	}
+
+	protectedHeaders = map[string]bool {
+		"Lucent-Channel" : true,
+		"Lucent-User": true,
+	}
 )
 
 type LucentClient struct {
@@ -80,8 +85,7 @@ func (lc *LucentClient) NewRequest(method, endpoint string, data ...interface{})
 		Method:   method,
 		EndPoint: endpoint,
 		Data:     data,
-		// add the default headers
-		Headers: lc.DefaultHeaders,
+		Headers:  lc.DefaultHeaders,
 	}
 
 	return req, nil
