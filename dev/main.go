@@ -2,11 +2,21 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/radasfunk/lucentcmsgo"
+	"github.com/radasfunk/lucentcmsgo/dev/utils/env"
 )
 
-func main() {
-	fmt.Printf("Hello")
+func init() {
+	env.LoadEnv()
+}
 
-	lucentcmsgo.Hello()
+func main() {
+	channel := env.Get("LUCENTV3_CHANNEL")
+	token := env.Get("LUCENTV3_TOKEN")
+	user := env.Get("LUCENTV3_USER")
+
+	client := lucentcmsgo.NewLucentClient(channel, token, user)
+
+	fmt.Printf("got client %v\n", client)
 }
