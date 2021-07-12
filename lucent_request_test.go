@@ -61,3 +61,17 @@ func TestProtectedHeadersCanNotBeChanged(t *testing.T) {
 		}
 	}
 }
+
+func TestDataCanBeAdded(t *testing.T) {
+	data := "Hello world"
+
+	req, _ := client.NewRequest("GET", "documents", data)
+
+	expected := "Hello Universe"
+
+	req.AddData(expected)
+
+	if req.Data != expected {
+		t.Errorf("expected %v got %v", expected, req.Data)
+	}
+}

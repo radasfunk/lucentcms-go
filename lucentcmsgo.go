@@ -28,9 +28,9 @@ var (
 		"files/":     true,
 	}
 
-	protectedHeaders = map[string]bool {
-		"Lucent-Channel" : true,
-		"Lucent-User": true,
+	protectedHeaders = map[string]bool{
+		"Lucent-Channel": true,
+		"Lucent-User":    true,
 	}
 )
 

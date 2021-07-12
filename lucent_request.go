@@ -1,7 +1,5 @@
 package lucentcmsgo
 
-import "fmt"
-
 type LucentRequest struct {
 	Method, EndPoint string
 	Headers          map[string]string
@@ -20,6 +18,10 @@ func (lr *LucentRequest) AddHeaders(headers map[string]string) {
 	}
 }
 
-func (lr *LucentRequest) Send() {
-	fmt.Printf("send the request")
+func (lr *LucentRequest) AddData(data interface{}) {
+	lr.Data = data
+}
+
+func (lr *LucentRequest) Send() (*LucentResponse, error) {
+	return nil, nil
 }
