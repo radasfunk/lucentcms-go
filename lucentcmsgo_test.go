@@ -1,6 +1,7 @@
 package lucentcmsgo
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/radasfunk/lucentcmsgo/dev/utils/env"
@@ -10,7 +11,6 @@ func init() {
 	env.LoadEnv()
 }
 
-// make sure a instance of lucentClient is being created
 func TestNewLucentClientIsCreatedWithExpectedValue(t *testing.T) {
 
 	channel := env.Get("LUCENTV3_CHANNEL")
@@ -57,5 +57,66 @@ func TestNewLucentClientIsCreatedWithExpectedValue(t *testing.T) {
 
 	if expectedHeadersCount != receivedHeadersCount {
 		t.Errorf("channel default headers count mistammatch got %v want %v", receivedHeadersCount, expectedHeadersCount)
+	}
+}
+
+func TestValidMethodsAreAcceptedWhileCreatingRequest(t *testing.T) {
+	channel := env.Get("LUCENTV3_CHANNEL")
+	token := env.Get("LUCENTV3_TOKEN")
+	user := env.Get("LUCENTV3_USER")
+
+	client := NewLucentClient(channel, token, user)
+
+	method := "INVALID"
+	_, err := client.NewRequest(method, "documents/")
+
+	expected := fmt.Sprintf("unsupported method. can not create request %v", method)
+
+	if err == nil {
+		t.Errorf("allows invalid request method. expected %v got %v", expected, err.Error())
+	}
+
+	methods := []string{
+		"GET", "POST", "PUT", "PATCH", "DELETE", "UPLOAD",
+	}
+
+	for _, m := range methods {
+		_, err = client.NewRequest(m, "documents/")
+
+		if err != nil {
+			t.Errorf("expected error to be %v got %v", nil, err.Error())
+		}
+	}
+}
+
+func TestValidURLMethodAreBeingCreated(t *testing.T) {
+	channel := env.Get("LUCENTV3_CHANNEL")
+	token := env.Get("LUCENTV3_TOKEN")
+	user := env.Get("LUCENTV3_USER")
+
+	client := NewLucentClient(channel, token, user)
+
+	// TODO need to update
+	checklist := map[string]bool{
+		"documents/":                 true,
+		"files":                      true,
+		"channels":                   true,
+		"":                           false,
+		"asd":                        false,
+		"123":                        false,
+		"https://api.lucentcms.com/": false,
+	}
+
+	for url, expected := range checklist {
+		_, err := client.NewRequest("GET", url)
+
+		if expected == false && err == nil {
+			t.Errorf("expected %v for url %v got %v", expected, url, nil)
+		}
+
+		if expected == true && err != nil {
+			t.Errorf("expected %v for url %v got %v", expected, url, nil)
+		}
+
 	}
 }
