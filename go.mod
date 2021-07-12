@@ -1,3 +1,3 @@
-module github.com/radasfunk/lucentcms-go
+module github.com/radasfunk/lucentcmsgo
 
 go 1.16
