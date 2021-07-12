@@ -3,6 +3,7 @@ package lucentcmsgo
 import (
 	"fmt"
 	"net/url"
+	"time"
 )
 
 const (
@@ -37,11 +38,12 @@ var (
 type LucentClient struct {
 	Channel, Token, LucentUser, BaseUrl string
 	DefaultHeaders                      map[string]string
+	RequestTimeout                      time.Duration
 }
 
 // Creates a new lucent struct
 // Recommend to use NewLucentClient instead of populating the fields
-func NewLucentClient(channel, token, lucentUser string) *LucentClient {
+func NewLucentClient(channel, token, lucentUser string, duration time.Duration) *LucentClient {
 	headers := make(map[string]string)
 
 	headers["Accept"] = "application/json"
@@ -58,6 +60,7 @@ func NewLucentClient(channel, token, lucentUser string) *LucentClient {
 		LucentUser:     lucentUser,
 		DefaultHeaders: headers,
 		BaseUrl:        lucentBaseUrl,
+		RequestTimeout: duration,
 	}
 
 	return lucentClient
@@ -86,6 +89,7 @@ func (lc *LucentClient) NewRequest(method, endpoint string, data ...interface{})
 		EndPoint: endpoint,
 		Data:     data,
 		Headers:  lc.DefaultHeaders,
+		Timeout:  lc.RequestTimeout,
 	}
 
 	return req, nil

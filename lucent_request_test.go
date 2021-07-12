@@ -1,7 +1,9 @@
 package lucentcmsgo
 
 import (
+	"fmt"
 	"testing"
+	"time"
 
 	"github.com/radasfunk/lucentcmsgo/dev/utils/env"
 )
@@ -19,7 +21,8 @@ func init() {
 
 	token := env.Get("LUCENTV3_TOKEN")
 
-	client = NewLucentClient(channel, token, user)
+	dur := time.Duration(5 * time.Second)
+	client = NewLucentClient(channel, token, user, dur)
 }
 
 func TestHeadersCanBeAdded(t *testing.T) {
@@ -74,4 +77,22 @@ func TestDataCanBeAdded(t *testing.T) {
 	if req.Data != expected {
 		t.Errorf("expected %v got %v", expected, req.Data)
 	}
+}
+
+func TestRequestCanBeMade(t *testing.T) {
+
+	var data = make(map[string]string, 0)
+
+	data["filter[schema]"] = "products"
+	data["include"] = "*"
+
+	req, _ := client.NewRequest("GET", "documents", data)
+
+	res, err := req.Send()
+
+	if err != nil {
+		t.Errorf("got error %v", err.Error())
+	}
+
+	fmt.Println(res)
 }

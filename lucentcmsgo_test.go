@@ -3,6 +3,7 @@ package lucentcmsgo
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/radasfunk/lucentcmsgo/dev/utils/env"
 )
@@ -17,7 +18,9 @@ func TestNewLucentClientIsCreatedWithExpectedValue(t *testing.T) {
 	token := env.Get("LUCENTV3_TOKEN")
 	user := env.Get("LUCENTV3_USER")
 
-	client := NewLucentClient(channel, token, user)
+	dur := time.Duration(5 * time.Second)
+
+	client := NewLucentClient(channel, token, user, dur)
 
 	if client.Channel != channel {
 		t.Errorf("channel name got %v, want %v", client.Channel, channel)
@@ -65,7 +68,9 @@ func TestValidMethodsAreAcceptedWhileCreatingRequest(t *testing.T) {
 	token := env.Get("LUCENTV3_TOKEN")
 	user := env.Get("LUCENTV3_USER")
 
-	client := NewLucentClient(channel, token, user)
+	dur := time.Duration(5 * time.Second)
+
+	client := NewLucentClient(channel, token, user, dur)
 
 	method := "INVALID"
 	_, err := client.NewRequest(method, "documents/")
@@ -94,7 +99,9 @@ func TestValidURLMethodAreBeingCreated(t *testing.T) {
 	token := env.Get("LUCENTV3_TOKEN")
 	user := env.Get("LUCENTV3_USER")
 
-	client := NewLucentClient(channel, token, user)
+	dur := time.Duration(5 * time.Second)
+
+	client := NewLucentClient(channel, token, user, dur)
 
 	// TODO need to update
 	checklist := map[string]bool{
