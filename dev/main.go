@@ -80,7 +80,6 @@ func main() {
 	fmt.Println(response.Id, response.Title, "response body")
 }
 
-
 func aTestRunThatWorked() {
 	channel := env.Get("LUCENTV3_CHANNEL")
 	token := env.Get("LUCENTV3_TOKEN")
@@ -101,15 +100,15 @@ func aTestRunThatWorked() {
 
 	requestData, err := json.Marshal(data)
 
-	request, err := http.NewRequest("GET", "https://jsonplaceholder.typicode.com/todos/1", bytes.NewBuffer(requestData))
+	request, err := http.NewRequest("GET", "https://api.lucentcms.com/api/documents", bytes.NewBuffer(requestData))
 
 	if err != nil {
 		fmt.Printf("error %v", err.Error())
 	}
 
 	request.Header.Add("Accept", "application/json")
-	// request.Header.Add("Lucent-Channel", channel)
-	// request.Header.Add("Authorization", "Bearer "+token)
+	request.Header.Add("Lucent-Channel", channel)
+	request.Header.Add("Authorization", "Bearer "+token)
 	request.Header.Add("Accept-Language", "el-GR")
 
 	resp, err := httpClient.Do(request)
@@ -128,12 +127,12 @@ func aTestRunThatWorked() {
 
 	// body = bytes.TrimPrefix(body, []byte("\xef\xbb\xbf")) //
 
-	var response Todo
+	var response interface{}
 
 	err = json.Unmarshal(body, &response)
 
 	if err != nil {
 		fmt.Printf("error in json response %v", err.Error())
 	}
-	fmt.Println(response.Id, response.Title, "response body")
+	fmt.Println(response, "response body")
 }
