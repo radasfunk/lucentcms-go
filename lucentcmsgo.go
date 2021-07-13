@@ -49,6 +49,7 @@ func NewLucentClient(channel, token, lucentUser string, duration time.Duration) 
 	headers["Accept"] = "application/json"
 	headers["Lucent-Channel"] = channel
 	headers["Authorization"] = "Bearer " + token
+	headers["Accept-Language"] = "el-GR"
 
 	if lucentUser != "" {
 		headers["Lucent-User"] = lucentUser

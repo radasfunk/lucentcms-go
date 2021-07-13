@@ -113,7 +113,6 @@ func (lr *LucentRequest) Send() (*LucentResponse, error) {
 
 	// fmt.Println(string(body))
 	var lucentResponse LucentResponse
-
 	err = json.Unmarshal(body, &lucentResponse)
 
 	if err != nil {
