@@ -1,12 +1,34 @@
 package lucentcmsgo
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 type LucentResponse struct {
-	// raw todo add the raw response
-	Data           []interface{}
+	Data           []Document
 	Errors, Links  []string
 	Meta, Included map[string]interface{} // TODO add paginator
+}
+
+type Content map[string]interface{}
+
+type Document struct {
+	ID            string      `json:"id"`
+	RequestLocale string      `json:"requestLocale"`
+	Locale        string      `json:"locale"`
+	Schema        string      `json:"schema"`
+	Creator       string      `json:"creator"`
+	Editor        string      `json:"editor"`
+	Status        string      `json:"status"`
+	Version       int         `json:"version"`
+	PublishedAt   time.Time   `json:"publishedAt"`
+	Behind        bool        `json:"behind"`
+	Content       Content     `json:"content"`
+	Subdocs       interface{} `json:"subdocs"`
+	Channel       string      `json:"channel"`
+	UpdatedAt     time.Time   `json:"updatedAt"`
+	CreatedAt     time.Time   `json:"createdAt"`
 }
 
 func makeResponse() {
@@ -17,7 +39,7 @@ func (lrr *LucentResponse) HasErrors() bool {
 	return len(lrr.Errors) > 0
 }
 
-func (lrr *LucentResponse) GetData() []interface{} {
+func (lrr *LucentResponse) GetData() []Document {
 	return lrr.Data
 }
 

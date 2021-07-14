@@ -35,42 +35,13 @@ func (lr *LucentRequest) AddData(data interface{}) {
 func (lr *LucentRequest) Send() (*LucentResponse, error) {
 	// use prepare()
 
-	if lr.Method == "UPLOAD" {
-		lr.Method = "POST"
-
-		delete(lr.Headers, "Content-Type")
-
-		// lr.Data = map[string]interface{}{
-		// 	"multipart": lr.Data,
-		// }
-	}
-
-	// var payload interface{}
-
-	if lr.Data != nil {
-
-		fmt.Printf("data is not nil")
-
-		if lr.Method == "GET" || lr.Method == "DELETE" {
-			lr.Data = map[string]interface{}{
-				"query": lr.Data,
-			}
-
-			lr.AddHeaders(map[string]string{
-				"Content-Type": "application/json",
-			})
-		}
-
-		if lr.Method == "POST" || lr.Method == "PUT" || lr.Method == "PATCH" {
-			lr.Data = map[string]interface{}{
-				"json": lr.Data,
-			}
-		}
-	}
+	lr.AddHeaders(map[string]string{
+		"Content-Type": "application/json",
+	})
 
 	fmt.Println(lr.Data)
 
-	requestData, err := json.Marshal("")
+	requestData, err := json.Marshal(lr.Data)
 
 	if err != nil {
 		fmt.Printf("1 %v\n", err.Error())
@@ -119,6 +90,8 @@ func (lr *LucentRequest) Send() (*LucentResponse, error) {
 		fmt.Printf("5 %v\n", err.Error())
 		return nil, err
 	}
+
+	fmt.Printf("%v\n", lucentResponse.Data)
 
 	return &lucentResponse, nil
 }
