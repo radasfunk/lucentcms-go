@@ -17,10 +17,11 @@ func TestNewLucentClientIsCreatedWithExpectedValue(t *testing.T) {
 	channel := env.Get("LUCENTV3_CHANNEL")
 	token := env.Get("LUCENTV3_TOKEN")
 	user := env.Get("LUCENTV3_USER")
+	locale := env.Get("LUCENTV3_LOCALE")
 
 	dur := time.Duration(5 * time.Second)
 
-	client := NewLucentClient(channel, token, user, dur)
+	client := NewLucentClient(channel, token, user, locale, dur)
 
 	if client.Channel != channel {
 		t.Errorf("channel name got %v, want %v", client.Channel, channel)
@@ -67,10 +68,11 @@ func TestValidMethodsAreAcceptedWhileCreatingRequest(t *testing.T) {
 	channel := env.Get("LUCENTV3_CHANNEL")
 	token := env.Get("LUCENTV3_TOKEN")
 	user := env.Get("LUCENTV3_USER")
+	locale := env.Get("LUCENTV3_LOCALE")
 
 	dur := time.Duration(5 * time.Second)
 
-	client := NewLucentClient(channel, token, user, dur)
+	client := NewLucentClient(channel, token, user, locale, dur)
 
 	method := "INVALID"
 	_, err := client.NewRequest(method, "documents/")
@@ -100,8 +102,9 @@ func TestValidURLMethodAreBeingCreated(t *testing.T) {
 	user := env.Get("LUCENTV3_USER")
 
 	dur := time.Duration(5 * time.Second)
+	locale := env.Get("LUCENTV3_LOCALE")
 
-	client := NewLucentClient(channel, token, user, dur)
+	client := NewLucentClient(channel, token, user, locale , dur)
 
 	// TODO need to update
 	checklist := map[string]bool{

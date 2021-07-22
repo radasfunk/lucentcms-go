@@ -36,20 +36,20 @@ var (
 )
 
 type LucentClient struct {
-	Channel, Token, LucentUser, BaseUrl string
-	DefaultHeaders                      map[string]string
-	RequestTimeout                      time.Duration
+	Channel, Token, LucentUser, BaseUrl, Locale string
+	DefaultHeaders                              map[string]string
+	RequestTimeout                              time.Duration
 }
 
 // Creates a new lucent struct
 // Recommend to use NewLucentClient instead of populating the fields
-func NewLucentClient(channel, token, lucentUser string, duration time.Duration) *LucentClient {
+func NewLucentClient(channel, token, lucentUser, locale string, duration time.Duration) *LucentClient {
 	headers := make(map[string]string)
 
 	headers["Accept"] = "application/json"
 	headers["Lucent-Channel"] = channel
 	headers["Authorization"] = "Bearer " + token
-	headers["Accept-Language"] = "el-GR"
+	headers["Accept-Language"] = locale
 
 	if lucentUser != "" {
 		headers["Lucent-User"] = lucentUser

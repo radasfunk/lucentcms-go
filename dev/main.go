@@ -53,10 +53,11 @@ func main() {
 	channel := env.Get("LUCENTV3_CHANNEL")
 	token := env.Get("LUCENTV3_TOKEN")
 	user := env.Get("LUCENTV3_USER")
+	locale := env.Get("LUCENTV3_LOCALE")
 
 	dur := time.Duration(5 * time.Second)
 
-	_ = lucentcmsgo.NewLucentClient(channel, token, user, dur)
+	_ = lucentcmsgo.NewLucentClient(channel, token, user, locale, dur)
 
 	httpClient := http.Client{
 		Timeout: dur,
@@ -113,10 +114,11 @@ func aTestRunThatWorked() {
 	channel := env.Get("LUCENTV3_CHANNEL")
 	token := env.Get("LUCENTV3_TOKEN")
 	user := env.Get("LUCENTV3_USER")
+	locale := env.Get("LUCENTV3_LOCALE")
 
 	dur := time.Duration(5 * time.Second)
 
-	_ = lucentcmsgo.NewLucentClient(channel, token, user, dur)
+	_ = lucentcmsgo.NewLucentClient(channel, token, user, locale, dur)
 
 	httpClient := http.Client{
 		Timeout: dur,

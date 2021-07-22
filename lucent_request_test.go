@@ -20,9 +20,10 @@ func init() {
 	user = env.Get("LUCENTV3_USER")
 
 	token := env.Get("LUCENTV3_TOKEN")
+	locale := env.Get("LUCENTV3_LOCALE")
 
 	dur := time.Duration(5 * time.Second)
-	client = NewLucentClient(channel, token, user, dur)
+	client = NewLucentClient(channel, token, user, locale, dur)
 }
 
 func TestHeadersCanBeAdded(t *testing.T) {
