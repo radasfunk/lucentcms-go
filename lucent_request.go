@@ -39,8 +39,6 @@ func (lr *LucentRequest) Send() (*LucentResponse, error) {
 		"Content-Type": "application/json",
 	})
 
-	fmt.Println(lr.Data)
-
 	requestData, err := json.Marshal(lr.Data)
 
 	if err != nil {
@@ -55,8 +53,6 @@ func (lr *LucentRequest) Send() (*LucentResponse, error) {
 	request, err := http.NewRequest(lr.Method, lr.EndPoint, bytes.NewBuffer(requestData))
 
 	if err != nil {
-		fmt.Printf("2 %v\n", err.Error())
-
 		return nil, err
 	}
 
@@ -67,8 +63,6 @@ func (lr *LucentRequest) Send() (*LucentResponse, error) {
 	resp, err := httpClient.Do(request)
 
 	if err != nil {
-		fmt.Printf("3 %v\n", err.Error())
-
 		return nil, err
 	}
 
@@ -77,21 +71,12 @@ func (lr *LucentRequest) Send() (*LucentResponse, error) {
 	body, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {
-		fmt.Printf("4 %v\n", err.Error())
-
 		return nil, err
 	}
 
 	// fmt.Println(string(body))
 	var lucentResponse LucentResponse
-	err = json.Unmarshal(body, &lucentResponse)
-
-	if err != nil {
-		fmt.Printf("5 %v\n", err.Error())
-		return nil, err
-	}
-
-	fmt.Printf("%v\n", lucentResponse.Data)
+	_ = json.Unmarshal(body, &lucentResponse)
 
 	return &lucentResponse, nil
 }

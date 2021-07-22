@@ -64,7 +64,7 @@ func main() {
 
 	var data = make(map[string]string, 0)
 
-	data["filter[schema]"] = "products"
+	data["filter[schema]"] = "articles"
 	data["include"] = "*"
 
 	requestData, err := json.Marshal(data)
@@ -106,6 +106,7 @@ func main() {
 	}
 
 	fmt.Println(response.Data[0].Channel, "response body")
+	fmt.Println(response)
 }
 
 func aTestRunThatWorked() {

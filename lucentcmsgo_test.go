@@ -42,7 +42,7 @@ func TestNewLucentClientIsCreatedWithExpectedValue(t *testing.T) {
 	headers["Authorization"] = "Bearer " + token
 	headers["Lucent-User"] = user
 
-	expectedHeadersCount := 4
+	expectedHeadersCount := 5
 	receivedHeadersCount := 0
 
 	for key, value := range headers {
@@ -54,7 +54,7 @@ func TestNewLucentClientIsCreatedWithExpectedValue(t *testing.T) {
 		}
 	}
 
-	for _, _ = range client.DefaultHeaders {
+	for _ = range client.DefaultHeaders {
 		receivedHeadersCount++
 	}
 
@@ -105,13 +105,13 @@ func TestValidURLMethodAreBeingCreated(t *testing.T) {
 
 	// TODO need to update
 	checklist := map[string]bool{
-		"documents/":                 true,
-		"files":                      true,
-		"channels":                   true,
-		"":                           false,
-		"asd":                        false,
-		"123":                        false,
-		"https://api.lucentcms.com/": false,
+		"documents/":                     true,
+		"files":                          true,
+		"channels":                       true,
+		"":                               false,
+		"asd":                            false,
+		"123":                            false,
+		"https://api.lucentcms.com/api/": false,
 	}
 
 	for url, expected := range checklist {

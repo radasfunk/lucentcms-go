@@ -83,7 +83,7 @@ func TestRequestCanBeMade(t *testing.T) {
 
 	var data = make(map[string]string, 0)
 
-	data["filter[schema]"] = "products"
+	data["filter[schema]"] = "articles"
 	data["include"] = "*"
 
 	req, _ := client.NewRequest("GET", "documents", data)
