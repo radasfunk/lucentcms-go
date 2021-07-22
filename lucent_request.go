@@ -6,12 +6,14 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
+	"strings"
 	"time"
 )
 
 type LucentRequest struct {
 	Method, EndPoint string
-	Headers          map[string]string
+	Headers, Params  map[string]string
 	Data             interface{}
 	Timeout          time.Duration
 }
@@ -28,21 +30,51 @@ func (lr *LucentRequest) AddHeaders(headers map[string]string) {
 	}
 }
 
+func (lr *LucentRequest) AddParams(params map[string]string) {
+
+	for key, value := range params {
+		lr.Params[key] = value
+	}
+}
+
 func (lr *LucentRequest) AddData(data interface{}) {
 	lr.Data = data
+}
+
+func (lr *LucentRequest) prepareGetRequest() {
+	queryStr := ""
+
+	for q, v := range lr.Params {
+		queryStr = queryStr + url.QueryEscape(q) + "=" + url.QueryEscape(v) + "&"
+	}
+
+	queryStr = strings.TrimRight(queryStr, "&")
+	lr.EndPoint = fmt.Sprintf("%s?%s", lr.EndPoint, queryStr)
+
+	lr.AddHeaders(map[string]string{
+		"Content-Type": "application/json",
+	})
 }
 
 func (lr *LucentRequest) Send() (*LucentResponse, error) {
 	// use prepare()
 
-	lr.AddHeaders(map[string]string{
-		"Content-Type": "application/json",
-	})
+	var rData interface{}
+
+	switch lr.Method {
+	case "GET", "DELETE":
+		lr.prepareGetRequest()
+	case "POST", "PUT", "PATCH":
+		rData = "method=post"
+	case "UPLOAD":
+		rData = "method=upload"
+	}
+
+	fmt.Print(rData, lr.EndPoint)
 
 	requestData, err := json.Marshal(lr.Data)
 
 	if err != nil {
-		fmt.Printf("1 %v\n", err.Error())
 		return nil, err
 	}
 
@@ -74,7 +106,6 @@ func (lr *LucentRequest) Send() (*LucentResponse, error) {
 		return nil, err
 	}
 
-	// fmt.Println(string(body))
 	var lucentResponse LucentResponse
 	_ = json.Unmarshal(body, &lucentResponse)
 
