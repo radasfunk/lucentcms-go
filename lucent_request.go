@@ -66,7 +66,7 @@ func (lr *LucentRequest) preparePostRequest() {
 
 	for k, v := range lr.Data {
 		data.Set(k, fmt.Sprintf("%v", v))
-		fmt.Println(k, v)
+		fmt.Println("keys", k, v)
 	}
 	encoded := data.Encode()
 
