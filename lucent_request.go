@@ -1,12 +1,13 @@
 package lucentcmsgo
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -16,6 +17,7 @@ type LucentRequest struct {
 	Headers, Params  map[string]string
 	Data             interface{}
 	Timeout          time.Duration
+	body             io.Reader
 }
 
 func (lr *LucentRequest) AddHeaders(headers map[string]string) {
@@ -54,42 +56,68 @@ func (lr *LucentRequest) prepareGetRequest() {
 	lr.AddHeaders(map[string]string{
 		"Content-Type": "application/json",
 	})
+
+	lr.AddData(nil)
+	lr.body = nil
 }
 
-func (lr *LucentRequest) Send() (*LucentResponse, error) {
-	// use prepare()
+func (lr *LucentRequest) preparePostRequest() {
+	data := url.Values{}
 
-	var rData interface{}
+	for k, v := range lr.Params {
+		data.Set(k, v)
+	}
+
+	encoded := data.Encode()
+
+	lr.AddHeaders(map[string]string{
+		"Content-Type":   "application/x-www-form-urlencoded",
+		"Content-Length": strconv.Itoa(len(encoded)),
+	})
+
+	formData := strings.NewReader(encoded)
+
+	lr.body = formData
+}
+
+func (lr *LucentRequest) prepareRequest() (*http.Client, *http.Request, error) {
+
+	// var rData interface{}
 
 	switch lr.Method {
 	case "GET", "DELETE":
 		lr.prepareGetRequest()
 	case "POST", "PUT", "PATCH":
-		rData = "method=post"
+		// rData = "method=post"
+		lr.preparePostRequest()
 	case "UPLOAD":
-		rData = "method=upload"
-	}
-
-	fmt.Print(rData, lr.EndPoint)
-
-	requestData, err := json.Marshal(lr.Data)
-
-	if err != nil {
-		return nil, err
+		fmt.Printf("handle upload data")
+		// rData = "method=upload"
 	}
 
 	httpClient := http.Client{
 		Timeout: lr.Timeout,
 	}
-	// request
-	request, err := http.NewRequest(lr.Method, lr.EndPoint, bytes.NewBuffer(requestData))
+
+	request, err := http.NewRequest(lr.Method, lr.EndPoint, lr.body)
 
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	for k, v := range lr.Headers {
 		request.Header.Set(k, v)
+	}
+
+	return &httpClient, request, nil
+}
+
+func (lr *LucentRequest) Send() (*LucentResponse, error) {
+
+	httpClient, request, err := lr.prepareRequest()
+
+	if err != nil {
+		return nil, err
 	}
 
 	resp, err := httpClient.Do(request)

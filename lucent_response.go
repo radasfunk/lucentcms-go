@@ -43,6 +43,13 @@ func (lrr *LucentResponse) GetData() []Document {
 	return lrr.Data
 }
 
+func (lrr *LucentResponse) First() (Document, bool) {
+	if len(lrr.Data) > 0 {
+		return lrr.Data[0], true
+	}
+	return Document{}, false
+}
+
 func (lrr *LucentResponse) GetIncluded() map[string]interface{} {
 	return lrr.Included
 }
