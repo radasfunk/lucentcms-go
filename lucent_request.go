@@ -15,7 +15,7 @@ import (
 type LucentRequest struct {
 	Method, EndPoint string
 	Headers, Params  map[string]string
-	Data             interface{}
+	Data             map[string]interface{}
 	Timeout          time.Duration
 	body             io.Reader
 }
@@ -39,7 +39,7 @@ func (lr *LucentRequest) AddParams(params map[string]string) {
 	}
 }
 
-func (lr *LucentRequest) AddData(data interface{}) {
+func (lr *LucentRequest) AddData(data map[string]interface{}) {
 	lr.Data = data
 }
 
@@ -64,10 +64,10 @@ func (lr *LucentRequest) prepareGetRequest() {
 func (lr *LucentRequest) preparePostRequest() {
 	data := url.Values{}
 
-	for k, v := range lr.Params {
-		data.Set(k, v)
+	for k, v := range lr.Data {
+		data.Set(k, fmt.Sprintf("%v", v))
+		fmt.Println(k, v)
 	}
-
 	encoded := data.Encode()
 
 	lr.AddHeaders(map[string]string{
@@ -78,6 +78,8 @@ func (lr *LucentRequest) preparePostRequest() {
 	formData := strings.NewReader(encoded)
 
 	lr.body = formData
+
+	fmt.Printf("form data %v\n", data)
 }
 
 func (lr *LucentRequest) prepareRequest() (*http.Client, *http.Request, error) {
@@ -100,6 +102,8 @@ func (lr *LucentRequest) prepareRequest() (*http.Client, *http.Request, error) {
 	}
 
 	request, err := http.NewRequest(lr.Method, lr.EndPoint, lr.body)
+
+	fmt.Printf("url %v\n", lr.EndPoint)
 
 	if err != nil {
 		return nil, nil, err
@@ -135,7 +139,13 @@ func (lr *LucentRequest) Send() (*LucentResponse, error) {
 	}
 
 	var lucentResponse LucentResponse
-	_ = json.Unmarshal(body, &lucentResponse)
+	err = json.Unmarshal(body, &lucentResponse)
+
+	if err != nil {
+		return nil, err
+	}
+	fmt.Printf("request status %v and code %v\n", resp.Status, resp.StatusCode)
+	fmt.Printf("response body, %v\n", string(body))
 
 	return &lucentResponse, nil
 }

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"time"
 
@@ -50,6 +51,51 @@ type Document struct {
 }
 
 func main() {
+	aPostRequest()
+}
+
+func aPostRequest() {
+	fmt.Print("running a post request \n")
+
+	channel := env.Get("LUCENTV3_CHANNEL")
+	token := env.Get("LUCENTV3_SECRET")
+	user := env.Get("LUCENTV3_USER")
+	locale := env.Get("LUCENTV3_LOCALE")
+
+	dur := time.Duration(5 * time.Second)
+
+	lc := lucentcmsgo.NewLucentClient(channel, token, user, locale, dur)
+
+	d := make(map[string]interface{})
+
+	requestContent := make(map[string]interface{})
+	requestContent["title"] = "hello from golang"
+	requestContent["excerpt"] = "hello from golang"
+
+	d["data"] = map[string]interface{}{
+		"schema":  "articles",
+		"content": requestContent,
+	}
+
+	fmt.Printf("request body \n %v\n", d)
+
+	request, err := lc.NewRequest("POST", "documents", nil)
+	request.AddData(d)
+
+	if err != nil {
+		log.Fatalf("error %v\n", err.Error())
+	}
+
+	res, err := request.Send()
+
+	if err != nil {
+		log.Fatalf("error %v\n", err.Error())
+	}
+
+	fmt.Println(res)
+}
+
+func oldMain() {
 	channel := env.Get("LUCENTV3_CHANNEL")
 	token := env.Get("LUCENTV3_TOKEN")
 	user := env.Get("LUCENTV3_USER")

@@ -68,7 +68,7 @@ func NewLucentClient(channel, token, lucentUser, locale string, duration time.Du
 	return lucentClient
 }
 
-func (lc *LucentClient) NewRequest(method, endpoint string, data ...interface{}) (*LucentRequest, error) {
+func (lc *LucentClient) NewRequest(method, endpoint string, data map[string]interface{}) (*LucentRequest, error) {
 
 	if _, ok := validMethods[method]; !ok {
 		return nil, fmt.Errorf("unsupported method. can not create request %v", method)
