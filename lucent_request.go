@@ -78,10 +78,7 @@ func (lr *LucentRequest) prepareGetRequest() {
 		queryStr = queryStr + url.QueryEscape(q) + "=" + url.QueryEscape(v) + "&"
 	}
 
-	if lr.Skip > 0 {
-		queryStr = queryStr + url.QueryEscape("skip") + "=" + url.QueryEscape(fmt.Sprintf("%d", lr.Skip)) + "&"
-	}
-
+	queryStr = queryStr + url.QueryEscape("skip") + "=" + url.QueryEscape(fmt.Sprintf("%d", lr.Skip)) + "&"
 	queryStr = queryStr + url.QueryEscape("limit") + "=" + url.QueryEscape(fmt.Sprintf("%d", lr.Limit)) + "&"
 
 	queryStr = strings.TrimRight(queryStr, "&")
@@ -176,7 +173,7 @@ func (lr *LucentRequest) Get() (*LucentListResponse, error) {
 		return nil, err
 	}
 
-	fmt.Println(string(bytes))
+	// fmt.Println(string(bytes))
 
 	return &response, nil
 }

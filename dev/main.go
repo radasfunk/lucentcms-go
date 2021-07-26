@@ -51,7 +51,7 @@ type Document struct {
 }
 
 func main() {
-	aPostRequest()
+	aGetRequest()
 }
 
 func aGetRequest() {
@@ -66,22 +66,9 @@ func aGetRequest() {
 
 	lc := lucentcmsgo.NewLucentClient(channel, secret, user, locale, dur)
 
-	d := make(map[string]interface{})
-
-	requestContent := make(map[string]interface{})
-	requestContent["title"] = "This should not be created long string!"
-	requestContent["excerpt"] = "hello from golang a long string !"
-
-	d["schema"] = "articles"
-	d["content"] = requestContent
-
-	q := make(map[string]interface{})
-	q["data"] = d
-
-	fmt.Printf("request body \n %v\n", d)
-
 	request, err := lc.NewRequest("GET", "documents", nil)
 	// request.AddData(q)
+	request.SetLimit(10)
 
 	if err != nil {
 		log.Fatalf("error %v\n", err.Error())
@@ -93,7 +80,7 @@ func aGetRequest() {
 		log.Fatalf("error %v\n", err.Error())
 	}
 
-	fmt.Println(res)
+	fmt.Println(res.Data)
 }
 
 func aPostRequest() {
