@@ -101,7 +101,6 @@ func (lr *LucentRequest) preparePostRequest() error {
 
 	lr.AddHeaders(map[string]string{
 		"Content-Type": "application/json",
-		// "Content-Length": strconv.Itoa(len(data)),
 	})
 
 	formData := bytes.NewBuffer(data)

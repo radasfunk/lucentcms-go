@@ -28,7 +28,7 @@ func init() {
 
 func TestHeadersCanBeAdded(t *testing.T) {
 
-	req, _ := client.NewRequest("GET", "documents", nil)
+	req, _ := client.NewRequest("documents", nil)
 
 	headers := map[string]string{
 		"Custom-Header":   "Custom-Value",
@@ -48,7 +48,7 @@ func TestHeadersCanBeAdded(t *testing.T) {
 
 func TestProtectedHeadersCanNotBeChanged(t *testing.T) {
 
-	req, _ := client.NewRequest("GET", "documents", nil)
+	req, _ := client.NewRequest("documents", nil)
 
 	headers := map[string]string{
 		"Lucent-Channel": "UPDATED_LUCENT_CHANNEL",
@@ -73,9 +73,9 @@ func TestRequestCanBeMade(t *testing.T) {
 	data["filter[schema]"] = "articles"
 	data["include"] = "*"
 
-	req, _ := client.NewRequest("GET", "documents", data)
+	req, _ := client.NewRequest("documents", data)
 
-	res, err := req.Send()
+	res, err := req.Get()
 
 	if err != nil {
 		t.Errorf("got error %v", err.Error())

@@ -68,11 +68,7 @@ func NewLucentClient(channel, token, lucentUser, locale string, duration time.Du
 	return lucentClient
 }
 
-func (lc *LucentClient) NewRequest(method, endpoint string, data map[string]interface{}) (*LucentRequest, error) {
-
-	if _, ok := validMethods[method]; !ok {
-		return nil, fmt.Errorf("unsupported method. can not create request %v", method)
-	}
+func (lc *LucentClient) NewRequest(endpoint string, data map[string]interface{}) (*LucentRequest, error) {
 
 	if _, ok := validEndpoints[endpoint]; !ok {
 		return nil, fmt.Errorf("unsupported out of scope. can not create request endpoint %v", endpoint)
@@ -87,7 +83,6 @@ func (lc *LucentClient) NewRequest(method, endpoint string, data map[string]inte
 	}
 
 	req := &LucentRequest{
-		Method:   method,
 		EndPoint: endpoint,
 		Data:     data,
 		Headers:  lc.DefaultHeaders,

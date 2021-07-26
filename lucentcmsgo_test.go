@@ -1,7 +1,6 @@
 package lucentcmsgo
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
@@ -64,38 +63,6 @@ func TestNewLucentClientIsCreatedWithExpectedValue(t *testing.T) {
 	}
 }
 
-func TestValidMethodsAreAcceptedWhileCreatingRequest(t *testing.T) {
-	channel := env.Get("LUCENTV3_CHANNEL")
-	token := env.Get("LUCENTV3_TOKEN")
-	user := env.Get("LUCENTV3_USER")
-	locale := env.Get("LUCENTV3_LOCALE")
-
-	dur := time.Duration(5 * time.Second)
-
-	client := NewLucentClient(channel, token, user, locale, dur)
-
-	method := "INVALID"
-	_, err := client.NewRequest(method, "documents/",nil)
-
-	expected := fmt.Sprintf("unsupported method. can not create request %v", method)
-
-	if err == nil {
-		t.Errorf("allows invalid request method. expected %v got %v", expected, err.Error())
-	}
-
-	methods := []string{
-		"GET", "POST", "PUT", "PATCH", "DELETE", "UPLOAD",
-	}
-
-	for _, m := range methods {
-		_, err = client.NewRequest(m, "documents/",nil)
-
-		if err != nil {
-			t.Errorf("expected error to be %v got %v", nil, err.Error())
-		}
-	}
-}
-
 func TestValidURLMethodAreBeingCreated(t *testing.T) {
 	channel := env.Get("LUCENTV3_CHANNEL")
 	token := env.Get("LUCENTV3_TOKEN")
@@ -104,7 +71,7 @@ func TestValidURLMethodAreBeingCreated(t *testing.T) {
 	dur := time.Duration(5 * time.Second)
 	locale := env.Get("LUCENTV3_LOCALE")
 
-	client := NewLucentClient(channel, token, user, locale , dur)
+	client := NewLucentClient(channel, token, user, locale, dur)
 
 	// TODO need to update
 	checklist := map[string]bool{
@@ -118,7 +85,7 @@ func TestValidURLMethodAreBeingCreated(t *testing.T) {
 	}
 
 	for url, expected := range checklist {
-		_, err := client.NewRequest("GET", url,nil)
+		_, err := client.NewRequest(url, nil)
 
 		if expected == false && err == nil {
 			t.Errorf("expected %v for url %v got %v", expected, url, nil)

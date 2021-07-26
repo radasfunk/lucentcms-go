@@ -1,7 +1,6 @@
 package lucentcmsgo
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -42,15 +41,15 @@ type Document struct {
 	CreatedAt     time.Time   `json:"createdAt"`
 }
 
-func makeResponse() {
-	fmt.Printf("Get response")
-}
-
-func (lrr *LucentListResponse) HasErrors() bool {
+func (lrr *baseResponse) HasErrors() bool {
 	return len(lrr.Errors) > 0
 }
 
 func (lrr *LucentListResponse) GetData() []Document {
+	return lrr.Data
+}
+
+func (lrr *LucentResponse) GetData() Document {
 	return lrr.Data
 }
 
@@ -61,17 +60,17 @@ func (lrr *LucentListResponse) First() (Document, bool) {
 	return Document{}, false
 }
 
-func (lrr *LucentListResponse) GetIncluded() map[string]interface{} {
+func (lrr *baseResponse) GetIncluded() map[string]interface{} {
 	return lrr.Included
 }
 
 // returns all the errors
-func (lrr *LucentListResponse) GetErrors() []string {
+func (lrr *baseResponse) GetErrors() []string {
 	return lrr.Errors
 }
 
 // returns the first error
-func (lrr *LucentListResponse) Error() string {
+func (lrr *baseResponse) Error() string {
 	if lrr.HasErrors() {
 		return lrr.Errors[0]
 	}
