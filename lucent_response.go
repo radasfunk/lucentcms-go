@@ -24,6 +24,7 @@ type Content map[string]interface{}
 
 type Document struct {
 	ID            string      `json:"id"`
+	RequestLocale string      `json:"requestLocale"`
 	Locale        string      `json:"locale"`
 	Schema        string      `json:"schema"`
 	Creator       string      `json:"creator"`
