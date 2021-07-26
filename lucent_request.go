@@ -74,6 +74,10 @@ func (lr *LucentRequest) prepareGetRequest() {
 		queryStr = queryStr + url.QueryEscape(q) + "=" + url.QueryEscape(v) + "&"
 	}
 
+	for q, v := range lr.Filters {
+		queryStr = queryStr + url.QueryEscape(q) + "=" + url.QueryEscape(v) + "&"
+	}
+
 	if lr.Skip > 0 {
 		queryStr = queryStr + url.QueryEscape("skip") + "=" + url.QueryEscape(fmt.Sprintf("%d", lr.Skip)) + "&"
 	}
