@@ -118,7 +118,37 @@ func (lr *LucentRequest) forgeRequest() (*http.Client, *http.Request, error) {
 	return &httpClient, request, nil
 }
 
+func (lr *LucentRequest) Get() (*LucentListResponse, error) {
+	lr.Method = http.MethodGet
+
+	lr.prepareGetRequest()
+
+	httpClient, request, err := lr.forgeRequest()
+
+	if err != nil {
+		return nil, err
+	}
+
+	bytes, err := lr.make(httpClient, request)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var response LucentListResponse
+	err = json.Unmarshal(bytes, &response)
+
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println(string(bytes))
+
+	return &response, nil
+}
+
 func (lr *LucentRequest) Post() (*LucentResponse, error) {
+	lr.Method = http.MethodPost
 	err := lr.preparePostRequest()
 
 	if err != nil {

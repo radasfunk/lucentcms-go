@@ -75,7 +75,7 @@ func TestValidMethodsAreAcceptedWhileCreatingRequest(t *testing.T) {
 	client := NewLucentClient(channel, token, user, locale, dur)
 
 	method := "INVALID"
-	_, err := client.NewRequest(method, "documents/")
+	_, err := client.NewRequest(method, "documents/",nil)
 
 	expected := fmt.Sprintf("unsupported method. can not create request %v", method)
 
@@ -88,7 +88,7 @@ func TestValidMethodsAreAcceptedWhileCreatingRequest(t *testing.T) {
 	}
 
 	for _, m := range methods {
-		_, err = client.NewRequest(m, "documents/")
+		_, err = client.NewRequest(m, "documents/",nil)
 
 		if err != nil {
 			t.Errorf("expected error to be %v got %v", nil, err.Error())
@@ -118,7 +118,7 @@ func TestValidURLMethodAreBeingCreated(t *testing.T) {
 	}
 
 	for url, expected := range checklist {
-		_, err := client.NewRequest("GET", url)
+		_, err := client.NewRequest("GET", url,nil)
 
 		if expected == false && err == nil {
 			t.Errorf("expected %v for url %v got %v", expected, url, nil)

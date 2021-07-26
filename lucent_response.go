@@ -24,7 +24,6 @@ type Content map[string]interface{}
 
 type Document struct {
 	ID            string      `json:"id"`
-	RequestLocale string      `json:"requestLocale"`
 	Locale        string      `json:"locale"`
 	Schema        string      `json:"schema"`
 	Creator       string      `json:"creator"`
@@ -35,7 +34,9 @@ type Document struct {
 	Behind        bool        `json:"behind"`
 	Content       Content     `json:"content"`
 	Subdocs       interface{} `json:"subdocs"`
+	Relationships interface{} `json:"relationships"`
 	Channel       string      `json:"channel"`
+	Resource      string      `json:"resource"`
 	UpdatedAt     time.Time   `json:"updatedAt"`
 	CreatedAt     time.Time   `json:"createdAt"`
 }

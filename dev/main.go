@@ -54,6 +54,48 @@ func main() {
 	aPostRequest()
 }
 
+func aGetRequest() {
+	fmt.Print("running a get request \n")
+
+	channel := env.Get("LUCENTV3_CHANNEL")
+	secret := env.Get("LUCENTV3_SECRET")
+	user := env.Get("LUCENTV3_USER")
+	locale := env.Get("LUCENTV3_LOCALE")
+
+	dur := time.Duration(5 * time.Second)
+
+	lc := lucentcmsgo.NewLucentClient(channel, secret, user, locale, dur)
+
+	d := make(map[string]interface{})
+
+	requestContent := make(map[string]interface{})
+	requestContent["title"] = "This should not be created long string!"
+	requestContent["excerpt"] = "hello from golang a long string !"
+
+	d["schema"] = "articles"
+	d["content"] = requestContent
+
+	q := make(map[string]interface{})
+	q["data"] = d
+
+	fmt.Printf("request body \n %v\n", d)
+
+	request, err := lc.NewRequest("GET", "documents", nil)
+	// request.AddData(q)
+
+	if err != nil {
+		log.Fatalf("error %v\n", err.Error())
+	}
+
+	res, err := request.Get()
+
+	if err != nil {
+		log.Fatalf("error %v\n", err.Error())
+	}
+
+	fmt.Println(res)
+}
+
 func aPostRequest() {
 	fmt.Print("running a post request \n")
 
