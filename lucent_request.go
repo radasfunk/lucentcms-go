@@ -130,7 +130,7 @@ func (lr *LucentRequest) Post() (*LucentResponse, error) {
 		return nil, err
 	}
 
-	bytes, err := lr.make(httpClient,request)
+	bytes, err := lr.make(httpClient, request)
 
 	if err != nil {
 		return nil, err
@@ -143,10 +143,12 @@ func (lr *LucentRequest) Post() (*LucentResponse, error) {
 		return nil, err
 	}
 
+	fmt.Println(string(bytes))
+
 	return &response, nil
 }
 
-func (lr *LucentRequest) make(httpClient *http.Client, request *http.Request) ([]byte, error)  {
+func (lr *LucentRequest) make(httpClient *http.Client, request *http.Request) ([]byte, error) {
 
 	resp, err := httpClient.Do(request)
 

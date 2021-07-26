@@ -69,8 +69,8 @@ func aPostRequest() {
 	d := make(map[string]interface{})
 
 	requestContent := make(map[string]interface{})
-	requestContent["title"] = "im batman with custom response"
-	requestContent["excerpt"] = "hello from golang"
+	requestContent["title"] = "This should not be created long string!"
+	requestContent["excerpt"] = "hello from golang a long string !"
 
 	d["schema"] = "articles"
 	d["content"] = requestContent
