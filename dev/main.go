@@ -1,3 +1,4 @@
+// testing ground
 package main
 
 import (
@@ -67,7 +68,7 @@ func aGetRequest() {
 	lc := lucentcmsgo.NewLucentClient(channel, secret, user, locale, dur)
 
 	request, err := lc.NewRequest("GET", "documents", nil)
-	// request.AddData(q)
+
 	request.SetLimit(10)
 
 	if err != nil {
@@ -80,7 +81,7 @@ func aGetRequest() {
 		log.Fatalf("error %v\n", err.Error())
 	}
 
-	fmt.Println(res.Data)
+	fmt.Println(res.Errors)
 }
 
 func aPostRequest() {

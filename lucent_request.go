@@ -173,13 +173,25 @@ func (lr *LucentRequest) Get() (*LucentListResponse, error) {
 		return nil, err
 	}
 
-	// fmt.Println(string(bytes))
-
 	return &response, nil
 }
 
 func (lr *LucentRequest) Post() (*LucentResponse, error) {
 	lr.Method = http.MethodPost
+	return lr.makePostRequest()
+}
+
+func (lr *LucentRequest) Put() (*LucentResponse, error) {
+	lr.Method = http.MethodPut
+	return lr.makePostRequest()
+}
+
+func (lr *LucentRequest) Patch() (*LucentResponse, error) {
+	lr.Method = http.MethodPatch
+	return lr.makePostRequest()
+}
+
+func (lr *LucentRequest) makePostRequest() (*LucentResponse, error) {
 	err := lr.preparePostRequest()
 
 	if err != nil {
@@ -204,8 +216,6 @@ func (lr *LucentRequest) Post() (*LucentResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	fmt.Println(string(bytes))
 
 	return &response, nil
 }
