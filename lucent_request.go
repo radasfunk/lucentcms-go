@@ -80,6 +80,7 @@ func (lr *LucentRequest) preparePostRequest() error {
 	return nil
 }
 
+// deprecated
 func (lr *LucentRequest) prepareRequest() (*http.Client, *http.Request, error) {
 
 	// var rData interface{}
