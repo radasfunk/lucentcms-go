@@ -4,6 +4,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/radasfunk/lucentcmsgo"
@@ -48,7 +49,35 @@ type Document struct {
 }
 
 func main() {
-	aGetRequest()
+	anUploadRequest()
+}
+
+func anUploadRequest() {
+	fmt.Print("running an upload request \n")
+
+	channel := env.Get("LUCENTV3_CHANNEL")
+	secret := env.Get("LUCENTV3_SECRET")
+	user := env.Get("LUCENTV3_USER")
+	locale := env.Get("LUCENTV3_LOCALE")
+
+	dur := time.Duration(5 * time.Second)
+
+	lc := lucentcmsgo.NewLucentClient(channel, secret, user, locale, dur)
+
+	request, err := lc.NewRequest("files", nil)
+
+	if err != nil {
+		log.Fatalf("error %v\n", err.Error())
+	}
+	c, _ := os.Getwd()
+
+	res, err := request.UploadFromDisk("a_pikachu_file.png", c+"/dev/pikachu.png")
+
+	if err != nil {
+		log.Fatalf("error %v\n", err.Error())
+	}
+
+	fmt.Println(res.Errors)
 }
 
 func aGetRequest() {

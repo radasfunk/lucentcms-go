@@ -6,8 +6,11 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"mime/multipart"
 	"net/http"
 	"net/url"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -20,6 +23,12 @@ type LucentRequest struct {
 	Filters                map[string]string
 	body                   io.Reader
 	Skip, Limit            int32
+}
+
+type File struct {
+	Name     string      `json:"name"`
+	Content  interface{} `json:"content"`
+	Filename string      `json:"filename"`
 }
 
 func (lr *LucentRequest) AddHeaders(headers map[string]string) {
@@ -188,6 +197,72 @@ func (lr *LucentRequest) Put() (*LucentResponse, error) {
 func (lr *LucentRequest) Patch() (*LucentResponse, error) {
 	lr.Method = http.MethodPatch
 	return lr.makePostRequest()
+}
+
+func (lr *LucentRequest) UploadFromDisk(filename, path string) (*LucentResponse, error) {
+	lr.Method = http.MethodPost
+
+	file, err := os.Open(path)
+
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	part, err := writer.CreateFormFile("files[]", filepath.Base(path))
+	if err != nil {
+		return nil, err
+	}
+	_, err = io.Copy(part, file)
+
+	err = writer.Close()
+
+	if err != nil {
+		return nil, err
+	}
+
+	var files []File
+
+	f := File{
+		Name:     "files[]",
+		Content:  body,
+		Filename: "pikachu.png",
+	}
+
+	files = append(files, f)
+
+	lr.body = bytes.NewBuffer([]byte(fmt.Sprintf("%v", files)))
+
+	// add file stuff
+	// add headers
+
+	lr.AddHeaders(map[string]string{
+		"Content-Type": writer.FormDataContentType(),
+	})
+	httpClient, request, err := lr.forgeRequest()
+
+	if err != nil {
+		return nil, err
+	}
+
+	bytes, err := lr.make(httpClient, request)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var response interface{}
+	err = json.Unmarshal(bytes, &response)
+
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println(response)
+
+	return nil, nil
 }
 
 func (lr *LucentRequest) makePostRequest() (*LucentResponse, error) {
