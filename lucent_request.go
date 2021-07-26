@@ -1,13 +1,13 @@
 package lucentcmsgo
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -62,24 +62,23 @@ func (lr *LucentRequest) prepareGetRequest() {
 }
 
 func (lr *LucentRequest) preparePostRequest() {
-	data := url.Values{}
+	data, err := json.Marshal(lr.Data)
 
-	for k, v := range lr.Data {
-		data.Set(k, fmt.Sprintf("%v", v))
-		fmt.Println("keys", k, v)
+	if err != nil {
+		fmt.Printf("%v\n", err.Error())
+		panic("error occurecred")
 	}
-	encoded := data.Encode()
 
 	lr.AddHeaders(map[string]string{
-		"Content-Type":   "application/x-www-form-urlencoded",
-		"Content-Length": strconv.Itoa(len(encoded)),
+		"Content-Type": "application/json",
+		// "Content-Length": strconv.Itoa(len(data)),
 	})
 
-	formData := strings.NewReader(encoded)
+	formData := bytes.NewBuffer(data)
 
 	lr.body = formData
 
-	fmt.Printf("form data %v\n", data)
+	fmt.Printf("form data %v\n", string(data))
 }
 
 func (lr *LucentRequest) prepareRequest() (*http.Client, *http.Request, error) {

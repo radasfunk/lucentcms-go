@@ -72,15 +72,16 @@ func aPostRequest() {
 	requestContent["title"] = "hello from golang"
 	requestContent["excerpt"] = "hello from golang"
 
-	d["data"] = map[string]interface{}{
-		"schema":  "articles",
-		"content": requestContent,
-	}
+	d["schema"] = "articles"
+	d["content"] = requestContent
+
+	q := make(map[string]interface{})
+	q["data"] = d
 
 	fmt.Printf("request body \n %v\n", d)
 
 	request, err := lc.NewRequest("POST", "documents", nil)
-	request.AddData(d)
+	request.AddData(q)
 
 	if err != nil {
 		log.Fatalf("error %v\n", err.Error())
