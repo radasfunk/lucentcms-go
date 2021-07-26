@@ -6,7 +6,16 @@ import (
 )
 
 type LucentResponse struct {
-	Data           []Document
+	Data Document
+	baseResponse
+}
+
+type LucentListResponse struct {
+	Data []Document
+	baseResponse
+}
+
+type baseResponse struct {
 	Errors, Links  []string
 	Meta, Included map[string]interface{} // TODO add paginator
 }
@@ -35,32 +44,32 @@ func makeResponse() {
 	fmt.Printf("Get response")
 }
 
-func (lrr *LucentResponse) HasErrors() bool {
+func (lrr *LucentListResponse) HasErrors() bool {
 	return len(lrr.Errors) > 0
 }
 
-func (lrr *LucentResponse) GetData() []Document {
+func (lrr *LucentListResponse) GetData() []Document {
 	return lrr.Data
 }
 
-func (lrr *LucentResponse) First() (Document, bool) {
+func (lrr *LucentListResponse) First() (Document, bool) {
 	if len(lrr.Data) > 0 {
 		return lrr.Data[0], true
 	}
 	return Document{}, false
 }
 
-func (lrr *LucentResponse) GetIncluded() map[string]interface{} {
+func (lrr *LucentListResponse) GetIncluded() map[string]interface{} {
 	return lrr.Included
 }
 
 // returns all the errors
-func (lrr *LucentResponse) GetErrors() []string {
+func (lrr *LucentListResponse) GetErrors() []string {
 	return lrr.Errors
 }
 
 // returns the first error
-func (lrr *LucentResponse) Error() string {
+func (lrr *LucentListResponse) Error() string {
 	if lrr.HasErrors() {
 		return lrr.Errors[0]
 	}

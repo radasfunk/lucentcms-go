@@ -61,12 +61,11 @@ func (lr *LucentRequest) prepareGetRequest() {
 	lr.body = nil
 }
 
-func (lr *LucentRequest) preparePostRequest() {
+func (lr *LucentRequest) preparePostRequest() error {
 	data, err := json.Marshal(lr.Data)
 
 	if err != nil {
-		fmt.Printf("%v\n", err.Error())
-		panic("error occurecred")
+		return err
 	}
 
 	lr.AddHeaders(map[string]string{
@@ -78,7 +77,7 @@ func (lr *LucentRequest) preparePostRequest() {
 
 	lr.body = formData
 
-	fmt.Printf("form data %v\n", string(data))
+	return nil
 }
 
 func (lr *LucentRequest) prepareRequest() (*http.Client, *http.Request, error) {
@@ -96,13 +95,16 @@ func (lr *LucentRequest) prepareRequest() (*http.Client, *http.Request, error) {
 		// rData = "method=upload"
 	}
 
+	return lr.forgeRequest()
+}
+
+func (lr *LucentRequest) forgeRequest() (*http.Client, *http.Request, error) {
+
 	httpClient := http.Client{
 		Timeout: lr.Timeout,
 	}
 
 	request, err := http.NewRequest(lr.Method, lr.EndPoint, lr.body)
-
-	fmt.Printf("url %v\n", lr.EndPoint)
 
 	if err != nil {
 		return nil, nil, err
@@ -115,7 +117,49 @@ func (lr *LucentRequest) prepareRequest() (*http.Client, *http.Request, error) {
 	return &httpClient, request, nil
 }
 
-func (lr *LucentRequest) Send() (*LucentResponse, error) {
+func (lr *LucentRequest) Post() (*LucentResponse, error) {
+	err := lr.preparePostRequest()
+
+	if err != nil {
+		return nil, err
+	}
+
+	httpClient, request, err := lr.forgeRequest()
+
+	if err != nil {
+		return nil, err
+	}
+
+	bytes, err := lr.make(httpClient,request)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var response LucentResponse
+	err = json.Unmarshal(bytes, &response)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &response, nil
+}
+
+func (lr *LucentRequest) make(httpClient *http.Client, request *http.Request) ([]byte, error)  {
+
+	resp, err := httpClient.Do(request)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+
+	return ioutil.ReadAll(resp.Body)
+}
+
+func (lr *LucentRequest) Send() (*LucentListResponse, error) {
 
 	httpClient, request, err := lr.prepareRequest()
 
@@ -137,14 +181,12 @@ func (lr *LucentRequest) Send() (*LucentResponse, error) {
 		return nil, err
 	}
 
-	var lucentResponse LucentResponse
-	err = json.Unmarshal(body, &lucentResponse)
+	var LucentListResponse LucentListResponse
+	err = json.Unmarshal(body, &LucentListResponse)
 
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("request status %v and code %v\n", resp.Status, resp.StatusCode)
-	fmt.Printf("response body, %v\n", string(body))
 
-	return &lucentResponse, nil
+	return &LucentListResponse, nil
 }

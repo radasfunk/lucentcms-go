@@ -58,18 +58,18 @@ func aPostRequest() {
 	fmt.Print("running a post request \n")
 
 	channel := env.Get("LUCENTV3_CHANNEL")
-	token := env.Get("LUCENTV3_SECRET")
+	secret := env.Get("LUCENTV3_SECRET")
 	user := env.Get("LUCENTV3_USER")
 	locale := env.Get("LUCENTV3_LOCALE")
 
 	dur := time.Duration(5 * time.Second)
 
-	lc := lucentcmsgo.NewLucentClient(channel, token, user, locale, dur)
+	lc := lucentcmsgo.NewLucentClient(channel, secret, user, locale, dur)
 
 	d := make(map[string]interface{})
 
 	requestContent := make(map[string]interface{})
-	requestContent["title"] = "hello from golang"
+	requestContent["title"] = "im batman with custom response"
 	requestContent["excerpt"] = "hello from golang"
 
 	d["schema"] = "articles"
@@ -87,7 +87,7 @@ func aPostRequest() {
 		log.Fatalf("error %v\n", err.Error())
 	}
 
-	res, err := request.Send()
+	res, err := request.Post()
 
 	if err != nil {
 		log.Fatalf("error %v\n", err.Error())
