@@ -92,6 +92,8 @@ func (lc *LucentClient) NewRequest(method, endpoint string, data map[string]inte
 		Data:     data,
 		Headers:  lc.DefaultHeaders,
 		Timeout:  lc.RequestTimeout,
+		Limit:    10,
+		Skip:     0,
 	}
 
 	return req, nil

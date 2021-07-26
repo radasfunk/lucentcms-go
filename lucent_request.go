@@ -13,11 +13,13 @@ import (
 )
 
 type LucentRequest struct {
-	Method, EndPoint string
-	Headers, Params  map[string]string
-	Data             map[string]interface{}
-	Timeout          time.Duration
-	body             io.Reader
+	Method, EndPoint, Meta string
+	Headers, Params        map[string]string
+	Data                   map[string]interface{}
+	Timeout                time.Duration
+	Filters                map[string]string
+	body                   io.Reader
+	Skip, Limit            int32
 }
 
 func (lr *LucentRequest) AddHeaders(headers map[string]string) {
@@ -43,12 +45,40 @@ func (lr *LucentRequest) AddData(data map[string]interface{}) {
 	lr.Data = data
 }
 
+func (lr *LucentRequest) FilterWhere(key, value string) {
+	key = "filter[" + key + "]"
+	lr.Filters[key] = value
+}
+
+func (lr *LucentRequest) FilterOrWhere(key, value string) {
+	key = "filter[or][" + key + "]"
+	lr.Filters[key] = value
+}
+
+func (lr *LucentRequest) SetSkip(page, limit int32) {
+	lr.Skip = page*limit - limit
+}
+
+func (lr *LucentRequest) SetLimit(limit int32) {
+	lr.Limit = limit
+}
+
+func (lr *LucentRequest) SetMeta(meta string) {
+	lr.Meta = meta
+}
+
 func (lr *LucentRequest) prepareGetRequest() {
 	queryStr := ""
 
 	for q, v := range lr.Params {
 		queryStr = queryStr + url.QueryEscape(q) + "=" + url.QueryEscape(v) + "&"
 	}
+
+	if lr.Skip > 0 {
+		queryStr = queryStr + url.QueryEscape("skip") + "=" + url.QueryEscape(fmt.Sprintf("%d", lr.Skip)) + "&"
+	}
+
+	queryStr = queryStr + url.QueryEscape("limit") + "=" + url.QueryEscape(fmt.Sprintf("%d", lr.Limit)) + "&"
 
 	queryStr = strings.TrimRight(queryStr, "&")
 	lr.EndPoint = fmt.Sprintf("%s?%s", lr.EndPoint, queryStr)
