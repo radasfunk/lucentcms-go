@@ -20,14 +20,15 @@ func init() {
 	user = env.Get("LUCENTV3_USER")
 
 	token := env.Get("LUCENTV3_TOKEN")
+	locale := env.Get("LUCENTV3_LOCALE")
 
 	dur := time.Duration(5 * time.Second)
-	client = NewLucentClient(channel, token, user, dur)
+	client = NewLucentClient(channel, token, user, locale, dur)
 }
 
 func TestHeadersCanBeAdded(t *testing.T) {
 
-	req, _ := client.NewRequest("GET", "documents")
+	req, _ := client.NewRequest("documents", nil)
 
 	headers := map[string]string{
 		"Custom-Header":   "Custom-Value",
@@ -47,7 +48,7 @@ func TestHeadersCanBeAdded(t *testing.T) {
 
 func TestProtectedHeadersCanNotBeChanged(t *testing.T) {
 
-	req, _ := client.NewRequest("GET", "documents")
+	req, _ := client.NewRequest("documents", nil)
 
 	headers := map[string]string{
 		"Lucent-Channel": "UPDATED_LUCENT_CHANNEL",
@@ -65,30 +66,16 @@ func TestProtectedHeadersCanNotBeChanged(t *testing.T) {
 	}
 }
 
-func TestDataCanBeAdded(t *testing.T) {
-	data := "Hello world"
-
-	req, _ := client.NewRequest("GET", "documents", data)
-
-	expected := "Hello Universe"
-
-	req.AddData(expected)
-
-	if req.Data != expected {
-		t.Errorf("expected %v got %v", expected, req.Data)
-	}
-}
-
 func TestRequestCanBeMade(t *testing.T) {
 
-	var data = make(map[string]string, 0)
+	var data = make(map[string]interface{}, 0)
 
-	data["filter[schema]"] = "products"
+	data["filter[schema]"] = "articles"
 	data["include"] = "*"
 
-	req, _ := client.NewRequest("GET", "documents", data)
+	req, _ := client.NewRequest("documents", data)
 
-	res, err := req.Send()
+	res, err := req.Get()
 
 	if err != nil {
 		t.Errorf("got error %v", err.Error())

@@ -43,12 +43,14 @@ type LucentClient struct {
 
 // Creates a new lucent struct
 // Recommend to use NewLucentClient instead of populating the fields
-func NewLucentClient(channel, token, lucentUser string, duration time.Duration) *LucentClient {
+func NewLucentClient(channel, token, lucentUser, locale string, duration time.Duration) *LucentClient {
 	headers := make(map[string]string)
 
 	headers["Accept"] = "application/json"
+
 	headers["Lucent-Channel"] = channel
 	headers["Authorization"] = "Bearer " + token
+	headers["Accept-Language"] = locale
 
 	if lucentUser != "" {
 		headers["Lucent-User"] = lucentUser
@@ -66,11 +68,7 @@ func NewLucentClient(channel, token, lucentUser string, duration time.Duration) 
 	return lucentClient
 }
 
-func (lc *LucentClient) NewRequest(method, endpoint string, data ...interface{}) (*LucentRequest, error) {
-
-	if _, ok := validMethods[method]; !ok {
-		return nil, fmt.Errorf("unsupported method. can not create request %v", method)
-	}
+func (lc *LucentClient) NewRequest(endpoint string, data map[string]interface{}) (*LucentRequest, error) {
 
 	if _, ok := validEndpoints[endpoint]; !ok {
 		return nil, fmt.Errorf("unsupported out of scope. can not create request endpoint %v", endpoint)
@@ -85,11 +83,12 @@ func (lc *LucentClient) NewRequest(method, endpoint string, data ...interface{})
 	}
 
 	req := &LucentRequest{
-		Method:   method,
 		EndPoint: endpoint,
 		Data:     data,
 		Headers:  lc.DefaultHeaders,
 		Timeout:  lc.RequestTimeout,
+		Limit:    10,
+		Skip:     0,
 	}
 
 	return req, nil

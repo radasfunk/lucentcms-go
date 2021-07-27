@@ -4,16 +4,31 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"mime/multipart"
 	"net/http"
+	"net/url"
+	"os"
+	"path/filepath"
+	"strings"
 	"time"
 )
 
 type LucentRequest struct {
-	Method, EndPoint string
-	Headers          map[string]string
-	Data             interface{}
-	Timeout          time.Duration
+	Method, EndPoint, Meta string
+	Headers, Params        map[string]string
+	Data                   map[string]interface{}
+	Timeout                time.Duration
+	Filters                map[string]interface{}
+	body                   io.Reader
+	Skip, Limit            int32
+}
+
+type File struct {
+	Name     string      `json:"name"`
+	Content  interface{} `json:"content"`
+	Filename string      `json:"filename"`
 }
 
 func (lr *LucentRequest) AddHeaders(headers map[string]string) {
@@ -28,76 +43,282 @@ func (lr *LucentRequest) AddHeaders(headers map[string]string) {
 	}
 }
 
-func (lr *LucentRequest) AddData(data interface{}) {
+func (lr *LucentRequest) AddParams(params map[string]string) {
+
+	for key, value := range params {
+		lr.Params[key] = value
+	}
+}
+
+func (lr *LucentRequest) AddData(data map[string]interface{}) {
 	lr.Data = data
 }
 
-func (lr *LucentRequest) Send() (*LucentResponse, error) {
-	// use prepare()
+func (lr *LucentRequest) FilterWhere(key string, value interface{}) {
+	key = "filter[" + key + "]"
+	lr.Filters[key] = value
+}
 
-	if lr.Method == "UPLOAD" {
-		lr.Method = "POST"
+func (lr *LucentRequest) FilterOrWhere(key string, value interface{}) {
+	key = "filter[or][" + key + "]"
+	lr.Filters[key] = value
+}
 
-		delete(lr.Headers, "Content-Type")
+func (lr *LucentRequest) SetSkip(page, limit int32) {
+	lr.Skip = page*limit - limit
+}
 
-		// lr.Data = map[string]interface{}{
-		// 	"multipart": lr.Data,
-		// }
+func (lr *LucentRequest) SetLimit(limit int32) {
+	lr.Limit = limit
+}
+
+func (lr *LucentRequest) SetMeta(meta string) {
+	lr.Meta = meta
+}
+
+func (lr *LucentRequest) prepareGetRequest() {
+	queryStr := ""
+
+	for q, v := range lr.Params {
+		queryStr = queryStr + url.QueryEscape(q) + "=" + url.QueryEscape(v) + "&"
 	}
 
-	// var payload interface{}
-
-	if lr.Data != nil {
-
-		fmt.Printf("data is not nil")
-
-		if lr.Method == "GET" || lr.Method == "DELETE" {
-			lr.Data = map[string]interface{}{
-				"query": lr.Data,
-			}
-
-			lr.AddHeaders(map[string]string{
-				"Content-Type": "application/json",
-			})
-		}
-
-		if lr.Method == "POST" || lr.Method == "PUT" || lr.Method == "PATCH" {
-			lr.Data = map[string]interface{}{
-				"json": lr.Data,
-			}
-		}
+	for q, v := range lr.Filters {
+		queryStr = queryStr + url.QueryEscape(q) + "=" + url.QueryEscape(v) + "&"
 	}
 
-	fmt.Println(lr.Data)
+	queryStr = queryStr + url.QueryEscape("skip") + "=" + url.QueryEscape(fmt.Sprintf("%d", lr.Skip)) + "&"
+	queryStr = queryStr + url.QueryEscape("limit") + "=" + url.QueryEscape(fmt.Sprintf("%d", lr.Limit)) + "&"
 
-	requestData, err := json.Marshal("")
+	queryStr = strings.TrimRight(queryStr, "&")
+	lr.EndPoint = fmt.Sprintf("%s?%s", lr.EndPoint, queryStr)
+
+	lr.AddHeaders(map[string]string{
+		"Content-Type": "application/json",
+	})
+
+	lr.AddData(nil)
+	lr.body = nil
+}
+
+func (lr *LucentRequest) preparePostRequest() error {
+	data, err := json.Marshal(lr.Data)
 
 	if err != nil {
-		fmt.Printf("1 %v\n", err.Error())
-		return nil, err
+		return err
 	}
+
+	lr.AddHeaders(map[string]string{
+		"Content-Type": "application/json",
+	})
+
+	formData := bytes.NewBuffer(data)
+
+	lr.body = formData
+
+	return nil
+}
+
+// deprecated
+func (lr *LucentRequest) prepareRequest() (*http.Client, *http.Request, error) {
+
+	// var rData interface{}
+
+	switch lr.Method {
+	case "GET", "DELETE":
+		lr.prepareGetRequest()
+	case "POST", "PUT", "PATCH":
+		// rData = "method=post"
+		lr.preparePostRequest()
+	case "UPLOAD":
+		fmt.Printf("handle upload data")
+		// rData = "method=upload"
+	}
+
+	return lr.forgeRequest()
+}
+
+func (lr *LucentRequest) forgeRequest() (*http.Client, *http.Request, error) {
 
 	httpClient := http.Client{
 		Timeout: lr.Timeout,
 	}
-	// request
-	request, err := http.NewRequest(lr.Method, lr.EndPoint, bytes.NewBuffer(requestData))
+
+	request, err := http.NewRequest(lr.Method, lr.EndPoint, lr.body)
 
 	if err != nil {
-		fmt.Printf("2 %v\n", err.Error())
-
-		return nil, err
+		return nil, nil, err
 	}
 
 	for k, v := range lr.Headers {
 		request.Header.Set(k, v)
 	}
 
+	return &httpClient, request, nil
+}
+
+func (lr *LucentRequest) Get() (*LucentListResponse, error) {
+	lr.Method = http.MethodGet
+
+	lr.prepareGetRequest()
+
+	httpClient, request, err := lr.forgeRequest()
+
+	if err != nil {
+		return nil, err
+	}
+
+	bytes, err := lr.make(httpClient, request)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var response LucentListResponse
+	err = json.Unmarshal(bytes, &response)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &response, nil
+}
+
+func (lr *LucentRequest) Post() (*LucentResponse, error) {
+	lr.Method = http.MethodPost
+	return lr.makePostRequest()
+}
+
+func (lr *LucentRequest) Put() (*LucentResponse, error) {
+	lr.Method = http.MethodPut
+	return lr.makePostRequest()
+}
+
+func (lr *LucentRequest) Patch() (*LucentResponse, error) {
+	lr.Method = http.MethodPatch
+	return lr.makePostRequest()
+}
+
+func (lr *LucentRequest) UploadFromDisk(filename, path string) (*LucentResponse, error) {
+	lr.Method = http.MethodPost
+
+	file, err := os.Open(path)
+
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	part, err := writer.CreateFormFile("files[]", filepath.Base(path))
+	if err != nil {
+		return nil, err
+	}
+	_, err = io.Copy(part, file)
+
+	err = writer.Close()
+
+	if err != nil {
+		return nil, err
+	}
+
+	var files []File
+
+	f := File{
+		Name:     "files[]",
+		Content:  body,
+		Filename: "pikachu.png",
+	}
+
+	files = append(files, f)
+
+	lr.body = bytes.NewBuffer([]byte(fmt.Sprintf("%v", files)))
+
+	// add file stuff
+	// add headers
+
+	lr.AddHeaders(map[string]string{
+		"Content-Type": writer.FormDataContentType(),
+	})
+	httpClient, request, err := lr.forgeRequest()
+
+	if err != nil {
+		return nil, err
+	}
+
+	bytes, err := lr.make(httpClient, request)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var response interface{}
+	err = json.Unmarshal(bytes, &response)
+
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println(response)
+
+	return nil, nil
+}
+
+func (lr *LucentRequest) makePostRequest() (*LucentResponse, error) {
+	err := lr.preparePostRequest()
+
+	if err != nil {
+		return nil, err
+	}
+
+	httpClient, request, err := lr.forgeRequest()
+
+	if err != nil {
+		return nil, err
+	}
+
+	bytes, err := lr.make(httpClient, request)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var response LucentResponse
+	err = json.Unmarshal(bytes, &response)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &response, nil
+}
+
+func (lr *LucentRequest) make(httpClient *http.Client, request *http.Request) ([]byte, error) {
+
 	resp, err := httpClient.Do(request)
 
 	if err != nil {
-		fmt.Printf("3 %v\n", err.Error())
+		return nil, err
+	}
 
+	defer resp.Body.Close()
+
+	return ioutil.ReadAll(resp.Body)
+}
+
+// deprecated
+func (lr *LucentRequest) Send() (*LucentListResponse, error) {
+
+	httpClient, request, err := lr.prepareRequest()
+
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := httpClient.Do(request)
+
+	if err != nil {
 		return nil, err
 	}
 
@@ -106,20 +327,15 @@ func (lr *LucentRequest) Send() (*LucentResponse, error) {
 	body, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {
-		fmt.Printf("4 %v\n", err.Error())
-
 		return nil, err
 	}
 
-	// fmt.Println(string(body))
-	var lucentResponse LucentResponse
-
-	err = json.Unmarshal(body, &lucentResponse)
+	var LucentListResponse LucentListResponse
+	err = json.Unmarshal(body, &LucentListResponse)
 
 	if err != nil {
-		fmt.Printf("5 %v\n", err.Error())
 		return nil, err
 	}
 
-	return &lucentResponse, nil
+	return &LucentListResponse, nil
 }

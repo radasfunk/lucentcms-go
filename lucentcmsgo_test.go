@@ -1,7 +1,6 @@
 package lucentcmsgo
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
@@ -17,10 +16,11 @@ func TestNewLucentClientIsCreatedWithExpectedValue(t *testing.T) {
 	channel := env.Get("LUCENTV3_CHANNEL")
 	token := env.Get("LUCENTV3_TOKEN")
 	user := env.Get("LUCENTV3_USER")
+	locale := env.Get("LUCENTV3_LOCALE")
 
 	dur := time.Duration(5 * time.Second)
 
-	client := NewLucentClient(channel, token, user, dur)
+	client := NewLucentClient(channel, token, user, locale, dur)
 
 	if client.Channel != channel {
 		t.Errorf("channel name got %v, want %v", client.Channel, channel)
@@ -42,7 +42,7 @@ func TestNewLucentClientIsCreatedWithExpectedValue(t *testing.T) {
 	headers["Authorization"] = "Bearer " + token
 	headers["Lucent-User"] = user
 
-	expectedHeadersCount := 4
+	expectedHeadersCount := 5
 	receivedHeadersCount := 0
 
 	for key, value := range headers {
@@ -54,43 +54,12 @@ func TestNewLucentClientIsCreatedWithExpectedValue(t *testing.T) {
 		}
 	}
 
-	for _, _ = range client.DefaultHeaders {
+	for _ = range client.DefaultHeaders {
 		receivedHeadersCount++
 	}
 
 	if expectedHeadersCount != receivedHeadersCount {
 		t.Errorf("channel default headers count mistammatch got %v want %v", receivedHeadersCount, expectedHeadersCount)
-	}
-}
-
-func TestValidMethodsAreAcceptedWhileCreatingRequest(t *testing.T) {
-	channel := env.Get("LUCENTV3_CHANNEL")
-	token := env.Get("LUCENTV3_TOKEN")
-	user := env.Get("LUCENTV3_USER")
-
-	dur := time.Duration(5 * time.Second)
-
-	client := NewLucentClient(channel, token, user, dur)
-
-	method := "INVALID"
-	_, err := client.NewRequest(method, "documents/")
-
-	expected := fmt.Sprintf("unsupported method. can not create request %v", method)
-
-	if err == nil {
-		t.Errorf("allows invalid request method. expected %v got %v", expected, err.Error())
-	}
-
-	methods := []string{
-		"GET", "POST", "PUT", "PATCH", "DELETE", "UPLOAD",
-	}
-
-	for _, m := range methods {
-		_, err = client.NewRequest(m, "documents/")
-
-		if err != nil {
-			t.Errorf("expected error to be %v got %v", nil, err.Error())
-		}
 	}
 }
 
@@ -100,22 +69,23 @@ func TestValidURLMethodAreBeingCreated(t *testing.T) {
 	user := env.Get("LUCENTV3_USER")
 
 	dur := time.Duration(5 * time.Second)
+	locale := env.Get("LUCENTV3_LOCALE")
 
-	client := NewLucentClient(channel, token, user, dur)
+	client := NewLucentClient(channel, token, user, locale, dur)
 
 	// TODO need to update
 	checklist := map[string]bool{
-		"documents/":                 true,
-		"files":                      true,
-		"channels":                   true,
-		"":                           false,
-		"asd":                        false,
-		"123":                        false,
-		"https://api.lucentcms.com/": false,
+		"documents/":                     true,
+		"files":                          true,
+		"channels":                       true,
+		"":                               false,
+		"asd":                            false,
+		"123":                            false,
+		"https://api.lucentcms.com/api/": false,
 	}
 
 	for url, expected := range checklist {
-		_, err := client.NewRequest("GET", url)
+		_, err := client.NewRequest(url, nil)
 
 		if expected == false && err == nil {
 			t.Errorf("expected %v for url %v got %v", expected, url, nil)
