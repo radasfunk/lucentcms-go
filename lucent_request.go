@@ -20,7 +20,7 @@ type LucentRequest struct {
 	Headers, Params        map[string]string
 	Data                   map[string]interface{}
 	Timeout                time.Duration
-	Filters                map[string]string
+	Filters                map[string]interface{}
 	body                   io.Reader
 	Skip, Limit            int32
 }
@@ -54,12 +54,12 @@ func (lr *LucentRequest) AddData(data map[string]interface{}) {
 	lr.Data = data
 }
 
-func (lr *LucentRequest) FilterWhere(key, value string) {
+func (lr *LucentRequest) FilterWhere(key string, value interface{}) {
 	key = "filter[" + key + "]"
 	lr.Filters[key] = value
 }
 
-func (lr *LucentRequest) FilterOrWhere(key, value string) {
+func (lr *LucentRequest) FilterOrWhere(key string, value interface{}) {
 	key = "filter[or][" + key + "]"
 	lr.Filters[key] = value
 }
@@ -307,6 +307,7 @@ func (lr *LucentRequest) make(httpClient *http.Client, request *http.Request) ([
 	return ioutil.ReadAll(resp.Body)
 }
 
+// deprecated
 func (lr *LucentRequest) Send() (*LucentListResponse, error) {
 
 	httpClient, request, err := lr.prepareRequest()
