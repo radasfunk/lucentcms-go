@@ -13,14 +13,15 @@ import "github.com/radasfunk/lucentcmsgo"
 ### Creating a lucent client
 
 ```go
-	channel := env.Get("LUCENTV3_CHANNEL")
-	secret := env.Get("LUCENTV3_SECRET")
-	accessKey := env.Get("LUCENTV3_ACCESS_KEY")
-	locale := env.Get("LUCENTV3_LOCALE")
 
-	dur := time.Duration(2 * time.Second) // timeout 
+channel := env.Get("LUCENTV3_CHANNEL")
+secret := env.Get("LUCENTV3_SECRET")
+accessKey := env.Get("LUCENTV3_ACCESS_KEY")
+locale := env.Get("LUCENTV3_LOCALE")
 
-	lc := lucentcmsgo.NewLucentClient(channel, secret, accessKey, locale, dur)
+dur := time.Duration(2 * time.Second) // timeout 
+
+lc := lucentcmsgo.NewLucentClient(channel, secret, accessKey, locale, dur)
 ```
 
 ### Creating a request 
@@ -30,19 +31,18 @@ import "github.com/radasfunk/lucentcmsgo"
 Retriving all the documents,
 
 ```go
-    // ... 
-	lc := lucentcmsgo.NewLucentClient(channel, secret, user, locale, dur)
+lc := lucentcmsgo.NewLucentClient(channel, secret, user, locale, dur)
 
-	request, err := lc.NewRequest("documents", nil)
+request, err := lc.NewRequest("documents", nil)
 
-    res, err := request.Get()
+res, err := request.Get()
 
-    if err != nil {
-        // handle your error
-        panic(err)
-    }
+if err != nil {
+    // handle your error
+    panic(err)
+}
 
-    fmt.Println(res) 
+fmt.Println(res) 
 ```
 
 Lucent requests will return a `LucentResponse` or `LucentListResponse`. `LucentResponse` is when you create or update a resource and get a single value returned. 
@@ -57,15 +57,15 @@ But if it has other errors like having problem encoding or something like that, 
 For a get request, data is added as params
 
 ```go
-	lc := lucentcmsgo.NewLucentClient(channel, secret, user, locale, dur)
+lc := lucentcmsgo.NewLucentClient(channel, secret, user, locale, dur)
 
-    requestData := make(map[string]string)
-	requestData["key"] = "some value"
+requestData := make(map[string]string)
+requestData["key"] = "some value"
 
-	request, err := lc.NewRequest("documents", nil)
-	request.AddParams(requestData)
+request, err := lc.NewRequest("documents", nil)
+request.AddParams(requestData)
 
-    res, err := request.Get()
+res, err := request.Get()
 ```
 
 
@@ -75,19 +75,18 @@ For a get request, data is added as params
 But, at the top level, it needs to have a key with data
 
 ```go
+requestWith := make(map[string]interface{})
+requestWith["key"] = "some value"
 
-    requestWith := make(map[string]interface{})
-	requestWith["key"] = "some value"
+request, err := lc.NewRequest("documents", nil)
 
-	request, err := lc.NewRequest("documents", nil)
+requestData := make(map[string]interface{})
+requestData["data"] = requestWith
 
-    requestData := make(map[string]interface{})
-    requestData["data"] = requestWith
-
-	lc := lucentcmsgo.NewLucentClient(channel, secret, user, locale, dur)
+lc := lucentcmsgo.NewLucentClient(channel, secret, user, locale, dur)
 	request.AddData(requestData)
 
-    res, err := request.Post()
+res, err := request.Post()
 ```
 
 You can also add data in `lc.NewRequest("documents",$here)`. Only for non-get methods.
@@ -97,42 +96,39 @@ You can also add data in `lc.NewRequest("documents",$here)`. Only for non-get me
 To skip values for paginations or any other reason,
 
 ```go
+request, err := lc.NewRequest("documents", nil)
 
-    request, err := lc.NewRequest("documents", nil)
-
-    request.setSkip(20)
+request.setSkip(20)
 ```
 
 ### Limit
 To limit the number of values,
 
 ```go
+request, err := lc.NewRequest("documents", nil)
 
-    request, err := lc.NewRequest("documents", nil)
-
-    request.SetLimit(20)
+request.SetLimit(20)
 ```
 
 ### Meta
 To set meta value for the request,
 
 ```go
+request, err := lc.NewRequest("documents", nil)
 
-    request, err := lc.NewRequest("documents", nil)
-
-    request.SetMeta("articles")
+request.SetMeta("articles")
 ```
 
 ### Adding headers
 
 ```go
-    additionalHeaders := make(map[string]string)
+additionalHeaders := make(map[string]string)
 
-    additionalHeaders["Custom-Key"] = "Custom-Value"
-    additionalHeaders["Custom-Another-Key"] = "custom value 123"
-    
-    request, err := lc.NewRequest("documents", nil)
-    request.AddHeaders(additionalHeaders)
+additionalHeaders["Custom-Key"] = "Custom-Value"
+additionalHeaders["Custom-Another-Key"] = "custom value 123"
+
+request, err := lc.NewRequest("documents", nil)
+request.AddHeaders(additionalHeaders)
 ```
 
 **Note** Some headers are protected and can not be overridden, them being 
@@ -141,16 +137,16 @@ To set meta value for the request,
 
 ### Adding where filters
 ```go
-    request, err := lc.NewRequest("documents", nil)
+request, err := lc.NewRequest("documents", nil)
 
-    request.FilterWhere("title","hello world")
+request.FilterWhere("title","hello world")
 ```
 
 ### Adding orWhere filters
 ```go
-    request, err := lc.NewRequest("documents", nil)
+request, err := lc.NewRequest("documents", nil)
 
-    request.FilterOrWhere("user_id","123-456-789-101")
+request.FilterOrWhere("user_id","123-456-789-101")
 ```
 
 ### LucentResponse structure
@@ -160,7 +156,6 @@ type LucentListResponse struct {
 	Errors, Links  []string
 	Meta, Included map[string]interface{} 
 }
-
 ```
 ### LucentListResponse structure
 
