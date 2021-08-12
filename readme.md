@@ -139,14 +139,65 @@ request.AddHeaders(additionalHeaders)
 ```go
 request, err := lc.NewRequest("documents", nil)
 
-request.FilterWhere("title","hello world")
+request.Where("title","hello world")
 ```
 
 ### Adding orWhere filters
 ```go
 request, err := lc.NewRequest("documents", nil)
 
-request.FilterOrWhere("user_id","123-456-789-101")
+request.OrWhere("user_id","123-456-789-101")
+```
+
+### Available filter methods
+```go
+Where(key string, value interface{})
+
+OrWhere(key string, value interface{})
+
+In(key string, value string)
+
+Regex(key string, value string)
+
+Exists(key string)
+
+NExists(key string)
+
+Eq(key string, value interface{})
+
+Ne(key string, value interface{})
+
+Nin(key string, value interface{})
+
+Lt(key string, value interface{})
+
+Lte(key string, value interface{})
+
+Gt(key string, value interface{})
+
+Gte(key string, value interface{})
+
+True(key string)
+
+False(key string)
+
+Null(key string)
+
+Nil(key string)
+
+Empty(key string)
+```
+
+### Uploading files from disk 
+
+```go
+
+path := []string{
+	"absolute/path/to/file.extension",
+	"/home/dev/pikachu.png", // like so
+}
+
+res, err := request.UploadFromPath(path) // Response will be an Upload Response
 ```
 
 ### LucentResponse structure
@@ -162,6 +213,15 @@ type LucentListResponse struct {
 ```go
 type LucentListResponse struct {
 	Data []Document
+	Errors, Links  []string
+	Meta, Included map[string]interface{} 
+}
+```
+### UploadResponse structure
+
+```go
+type UploadResponse struct {
+	Data []File `json:"data"`
 	Errors, Links  []string
 	Meta, Included map[string]interface{} 
 }
@@ -188,6 +248,35 @@ type Document struct {
 	Resource      string      `json:"resource"`
 	UpdatedAt     time.Time   `json:"updatedAt"`
 	CreatedAt     time.Time   `json:"createdAt"`
+}
+```
+
+### File structure 
+
+```go
+type File struct {
+	ID           string      `json:"id"`
+	OriginalName string      `json:"originalName"`
+	Filename     string      `json:"filename"`
+	Path         string      `json:"path"`
+	Mime         string      `json:"mime"`
+	URL          string      `json:"url"`
+	Image        string      `json:"image"`
+	Title        string      `json:"title"`
+	Description  string      `json:"description"`
+	Size         int         `json:"size"`
+	Width        int         `json:"width"`
+	Height       int         `json:"height"`
+	Alt          string      `json:"alt"`
+	Credits      interface{} `json:"credits"`
+	Checksum     string      `json:"checksum"`
+	Copyright    string      `json:"copyright"`
+	Tags         []string    `json:"tags"`
+	UploaderID   string      `json:"uploaderId"`
+	Channel      string      `json:"channel"`
+	UpdatedAt    time.Time   `json:"updatedAt"`
+	CreatedAt    time.Time   `json:"createdAt"`
+	Resource     string      `json:"resource"`
 }
 ```
 
