@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-type LucentRequest struct {
+type Request struct {
 	Method, EndPoint, Meta, Include string
 	Headers, Params                 map[string]string
 	Data                            map[string]interface{}
@@ -25,7 +25,7 @@ type LucentRequest struct {
 	Skip, Limit                     int32
 }
 
-func (lr *LucentRequest) AddHeaders(headers map[string]string) {
+func (lr *Request) AddHeaders(headers map[string]string) {
 
 	for key, value := range headers {
 		// will not allow users to change protected headers
@@ -37,34 +37,34 @@ func (lr *LucentRequest) AddHeaders(headers map[string]string) {
 	}
 }
 
-func (lr *LucentRequest) AddParams(params map[string]string) {
+func (lr *Request) AddParams(params map[string]string) {
 
 	for key, value := range params {
 		lr.Params[key] = value
 	}
 }
 
-func (lr *LucentRequest) AddData(data map[string]interface{}) {
+func (lr *Request) AddData(data map[string]interface{}) {
 	lr.Data = data
 }
 
-func (lr *LucentRequest) SetSkip(page, limit int32) {
+func (lr *Request) SetSkip(page, limit int32) {
 	lr.Skip = page*limit - limit
 }
 
-func (lr *LucentRequest) SetLimit(limit int32) {
+func (lr *Request) SetLimit(limit int32) {
 	lr.Limit = limit
 }
 
-func (lr *LucentRequest) SetInclude(include string) {
+func (lr *Request) SetInclude(include string) {
 	lr.Include = include
 }
 
-func (lr *LucentRequest) SetIncludeAll() {
+func (lr *Request) SetIncludeAll() {
 	lr.Include = "*"
 }
 
-func (lr *LucentRequest) prepareGetRequest() {
+func (lr *Request) prepareGetRequest() {
 	queryStr := ""
 
 	for q, v := range lr.Params {
@@ -96,7 +96,7 @@ func (lr *LucentRequest) prepareGetRequest() {
 	lr.body = nil
 }
 
-func (lr *LucentRequest) preparePostRequest() error {
+func (lr *Request) preparePostRequest() error {
 	data, err := json.Marshal(lr.Data)
 
 	if err != nil {
@@ -114,7 +114,7 @@ func (lr *LucentRequest) preparePostRequest() error {
 	return nil
 }
 
-func (lr *LucentRequest) forgeRequest() (*http.Client, *http.Request, error) {
+func (lr *Request) forgeRequest() (*http.Client, *http.Request, error) {
 
 	httpClient := http.Client{
 		Timeout: lr.Timeout,
@@ -133,7 +133,7 @@ func (lr *LucentRequest) forgeRequest() (*http.Client, *http.Request, error) {
 	return &httpClient, request, nil
 }
 
-func (lr *LucentRequest) Get() (*LucentListResponse, error) {
+func (lr *Request) Get() (*LucentListResponse, error) {
 	lr.Method = http.MethodGet
 
 	lr.prepareGetRequest()
@@ -160,22 +160,22 @@ func (lr *LucentRequest) Get() (*LucentListResponse, error) {
 	return &response, nil
 }
 
-func (lr *LucentRequest) Post() (*LucentResponse, error) {
+func (lr *Request) Post() (*Response, error) {
 	lr.Method = http.MethodPost
 	return lr.makePostRequest()
 }
 
-func (lr *LucentRequest) Put() (*LucentResponse, error) {
+func (lr *Request) Put() (*Response, error) {
 	lr.Method = http.MethodPut
 	return lr.makePostRequest()
 }
 
-func (lr *LucentRequest) Patch() (*LucentResponse, error) {
+func (lr *Request) Patch() (*Response, error) {
 	lr.Method = http.MethodPatch
 	return lr.makePostRequest()
 }
 
-func (lr *LucentRequest) UploadFromPath(files []string) (*UploadResponse, error) {
+func (lr *Request) UploadFromPath(files []string) (*UploadResponse, error) {
 	lr.Method = http.MethodPost
 
 	body := &bytes.Buffer{}
@@ -232,7 +232,7 @@ func (lr *LucentRequest) UploadFromPath(files []string) (*UploadResponse, error)
 	return &response, nil
 }
 
-func (lr *LucentRequest) makePostRequest() (*LucentResponse, error) {
+func (lr *Request) makePostRequest() (*Response, error) {
 	err := lr.preparePostRequest()
 
 	if err != nil {
@@ -251,7 +251,7 @@ func (lr *LucentRequest) makePostRequest() (*LucentResponse, error) {
 		return nil, err
 	}
 
-	var response LucentResponse
+	var response Response
 	err = json.Unmarshal(bytes, &response)
 
 	if err != nil {
@@ -261,7 +261,7 @@ func (lr *LucentRequest) makePostRequest() (*LucentResponse, error) {
 	return &response, nil
 }
 
-func (lr *LucentRequest) make(httpClient *http.Client, request *http.Request) ([]byte, error) {
+func (lr *Request) make(httpClient *http.Client, request *http.Request) ([]byte, error) {
 
 	resp, err := httpClient.Do(request)
 

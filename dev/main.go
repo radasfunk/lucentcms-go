@@ -49,7 +49,9 @@ type Document struct {
 }
 
 func main() {
-	anUploadRequest()
+	aPostRequest()
+	aGetRequest()
+	// anUploadRequest()
 }
 
 func anUploadRequest() {
@@ -113,7 +115,7 @@ func aGetRequest() {
 		log.Fatalf("error %v\n", err.Error())
 	}
 
-	fmt.Println(res.Errors)
+	fmt.Println(res.Data)
 }
 
 func aPostRequest() {

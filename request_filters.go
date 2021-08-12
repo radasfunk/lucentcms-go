@@ -2,79 +2,79 @@ package lucentcmsgo
 
 import "fmt"
 
-func (lr *LucentRequest) Where(key string, value interface{}) {
+func (lr *Request) Where(key string, value interface{}) {
 	key = "filter[" + key + "]"
 	lr.Filters[key] = value
 }
 
-func (lr *LucentRequest) makeFilter(key string, value interface{}, op string) {
+func (lr *Request) makeFilter(key string, value interface{}, op string) {
 	lr.Filters[fmt.Sprintf("filter[%s][%s]", op, key)] = value
 }
 
-func (lr *LucentRequest) OrWhere(key string, value interface{}) {
+func (lr *Request) OrWhere(key string, value interface{}) {
 	lr.makeFilter(key, value, "or")
 }
 
-func (lr *LucentRequest) In(key string, value string) {
+func (lr *Request) In(key string, value string) {
 	lr.makeFilter(key, value, "in")
 }
 
-func (lr *LucentRequest) Regex(key string, value string) {
+func (lr *Request) Regex(key string, value string) {
 	lr.makeFilter(key, value, "regex")
 }
 
-func (lr *LucentRequest) Exists(key string) {
+func (lr *Request) Exists(key string) {
 	lr.makeFilter(key, nil, "exists")
 }
 
-func (lr *LucentRequest) NExists(key string) {
+func (lr *Request) NExists(key string) {
 	lr.makeFilter(key, nil, "nexists")
 }
 
-func (lr *LucentRequest) Eq(key string, value interface{}) {
+func (lr *Request) Eq(key string, value interface{}) {
 	lr.makeFilter(key, value, "eq")
 }
 
-func (lr *LucentRequest) Ne(key string, value interface{}) {
+func (lr *Request) Ne(key string, value interface{}) {
 	lr.makeFilter(key, value, "ne")
 }
 
-func (lr *LucentRequest) Nin(key string, value interface{}) {
+func (lr *Request) Nin(key string, value interface{}) {
 	lr.makeFilter(key, value, "nin")
 }
 
-func (lr *LucentRequest) Lt(key string, value interface{}) {
+func (lr *Request) Lt(key string, value interface{}) {
 	lr.makeFilter(key, value, "lt")
 }
 
-func (lr *LucentRequest) Lte(key string, value interface{}) {
+func (lr *Request) Lte(key string, value interface{}) {
 	lr.makeFilter(key, value, "lte")
 }
 
-func (lr *LucentRequest) Gt(key string, value interface{}) {
+func (lr *Request) Gt(key string, value interface{}) {
 	lr.makeFilter(key, value, "gt")
 }
 
-func (lr *LucentRequest) Gte(key string, value interface{}) {
+func (lr *Request) Gte(key string, value interface{}) {
 	lr.makeFilter(key, value, "gte")
 }
 
-func (lr *LucentRequest) True(key string) {
+func (lr *Request) True(key string) {
 	lr.makeFilter(key, nil, "true")
 }
 
-func (lr *LucentRequest) False(key string) {
+func (lr *Request) False(key string) {
 	lr.makeFilter(key, nil, "false")
 }
 
-func (lr *LucentRequest) Null(key string) {
+func (lr *Request) Null(key string) {
 	lr.makeFilter(key, nil, "null")
 }
 
-func (lr *LucentRequest) Nil(key string) {
+func (lr *Request) Nil(key string) {
 	lr.makeFilter(key, nil, "null")
 }
 
-func (lr *LucentRequest) Empty(key string) {
+func (lr *Request) Empty(key string) {
 	lr.makeFilter(key, nil, "empty")
 }

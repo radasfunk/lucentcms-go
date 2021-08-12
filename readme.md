@@ -45,12 +45,12 @@ if err != nil {
 fmt.Println(res) 
 ```
 
-Lucent requests will return a `LucentResponse` or `LucentListResponse`. `LucentResponse` is when you create or update a resource and get a single value returned. 
+Lucent requests will return a `Response` or `LucentListResponse`. `Response` is when you create or update a resource and get a single value returned. 
 
 `LucentListResponse` is for every other response. 
 
-**Note** If your api request results in an error, it will still return a `LucentResponse` or `LucentListResponse` depending on the request type, and the `error` value will be `nil`. 
-But if it has other errors like having problem encoding or something like that, or maybe the request had send malformatted data and go is having problem to decode it, it will return an error with an empty `LucentResponse` or `LucentListResponse`.
+**Note** If your api request results in an error, it will still return a `Response` or `LucentListResponse` depending on the request type, and the `error` value will be `nil`. 
+But if it has other errors like having problem encoding or something like that, or maybe the request had send malformatted data and go is having problem to decode it, it will return an error with an empty `Response` or `LucentListResponse`.
 
 ### Adding request data with get request
 
@@ -200,7 +200,7 @@ path := []string{
 res, err := request.UploadFromPath(path) // Response will be an Upload Response
 ```
 
-### LucentResponse structure
+### Response structure
 ```go
 type LucentListResponse struct {
 	Data Document
@@ -280,7 +280,7 @@ type File struct {
 }
 ```
 
-### Methods with response (LucentResponse and LucentListResponse)
+### Methods with response (Response and LucentListResponse)
 
 ```go
 GetIncluded() map[string]interface{}
@@ -290,5 +290,5 @@ HasErrors() bool
 ```
 
 ### GetData()
-`GetData` method is available with both `LucentResponse` and `LucentListResponse` but they return different sturctures, `LucentListResponse` will return you an `array of Document` while `LucentResponse` will return you a `single Document`. 
+`GetData` method is available with both `Response` and `LucentListResponse` but they return different sturctures, `LucentListResponse` will return you an `array of Document` while `Response` will return you a `single Document`. 
 
