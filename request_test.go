@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/radasfunk/lucentcmsgo/dev/utils/env"
+	"github.com/radasfunk/lucentcmsgo/utils/env"
 )
 
 var (

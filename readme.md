@@ -45,12 +45,12 @@ if err != nil {
 fmt.Println(res) 
 ```
 
-Lucent requests will return a `LucentResponse` or `LucentListResponse`. `LucentResponse` is when you create or update a resource and get a single value returned. 
+Lucent requests will return a `Response` or `LucentListResponse`. `Response` is when you create or update a resource and get a single value returned. 
 
 `LucentListResponse` is for every other response. 
 
-**Note** If your api request results in an error, it will still return a `LucentResponse` or `LucentListResponse` depending on the request type, and the `error` value will be `nil`. 
-But if it has other errors like having problem encoding or something like that, or maybe the request had send malformatted data and go is having problem to decode it, it will return an error with an empty `LucentResponse` or `LucentListResponse`.
+**Note** If your api request results in an error, it will still return a `Response` or `LucentListResponse` depending on the request type, and the `error` value will be `nil`. 
+But if it has other errors like having problem encoding or something like that, or maybe the request had send malformatted data and go is having problem to decode it, it will return an error with an empty `Response` or `LucentListResponse`.
 
 ### Adding request data with get request
 
@@ -139,17 +139,68 @@ request.AddHeaders(additionalHeaders)
 ```go
 request, err := lc.NewRequest("documents", nil)
 
-request.FilterWhere("title","hello world")
+request.Where("title","hello world")
 ```
 
 ### Adding orWhere filters
 ```go
 request, err := lc.NewRequest("documents", nil)
 
-request.FilterOrWhere("user_id","123-456-789-101")
+request.OrWhere("user_id","123-456-789-101")
 ```
 
-### LucentResponse structure
+### Available filter methods
+```go
+Where(key string, value interface{})
+
+OrWhere(key string, value interface{})
+
+In(key string, value string)
+
+Regex(key string, value string)
+
+Exists(key string)
+
+NExists(key string)
+
+Eq(key string, value interface{})
+
+Ne(key string, value interface{})
+
+Nin(key string, value interface{})
+
+Lt(key string, value interface{})
+
+Lte(key string, value interface{})
+
+Gt(key string, value interface{})
+
+Gte(key string, value interface{})
+
+True(key string)
+
+False(key string)
+
+Null(key string)
+
+Nil(key string)
+
+Empty(key string)
+```
+
+### Uploading files from disk 
+
+```go
+
+path := []string{
+	"absolute/path/to/file.extension",
+	"/home/dev/pikachu.png", // like so
+}
+
+res, err := request.UploadFromPath(path) // Response will be an Upload Response
+```
+
+### Response structure
 ```go
 type LucentListResponse struct {
 	Data Document
@@ -162,6 +213,15 @@ type LucentListResponse struct {
 ```go
 type LucentListResponse struct {
 	Data []Document
+	Errors, Links  []string
+	Meta, Included map[string]interface{} 
+}
+```
+### UploadResponse structure
+
+```go
+type UploadResponse struct {
+	Data []File `json:"data"`
 	Errors, Links  []string
 	Meta, Included map[string]interface{} 
 }
@@ -191,7 +251,36 @@ type Document struct {
 }
 ```
 
-### Methods with response (LucentResponse and LucentListResponse)
+### File structure 
+
+```go
+type File struct {
+	ID           string      `json:"id"`
+	OriginalName string      `json:"originalName"`
+	Filename     string      `json:"filename"`
+	Path         string      `json:"path"`
+	Mime         string      `json:"mime"`
+	URL          string      `json:"url"`
+	Image        string      `json:"image"`
+	Title        string      `json:"title"`
+	Description  string      `json:"description"`
+	Size         int         `json:"size"`
+	Width        int         `json:"width"`
+	Height       int         `json:"height"`
+	Alt          string      `json:"alt"`
+	Credits      interface{} `json:"credits"`
+	Checksum     string      `json:"checksum"`
+	Copyright    string      `json:"copyright"`
+	Tags         []string    `json:"tags"`
+	UploaderID   string      `json:"uploaderId"`
+	Channel      string      `json:"channel"`
+	UpdatedAt    time.Time   `json:"updatedAt"`
+	CreatedAt    time.Time   `json:"createdAt"`
+	Resource     string      `json:"resource"`
+}
+```
+
+### Methods with response (Response and LucentListResponse)
 
 ```go
 GetIncluded() map[string]interface{}
@@ -201,5 +290,5 @@ HasErrors() bool
 ```
 
 ### GetData()
-`GetData` method is available with both `LucentResponse` and `LucentListResponse` but they return different sturctures, `LucentListResponse` will return you an `array of Document` while `LucentResponse` will return you a `single Document`. 
+`GetData` method is available with both `Response` and `LucentListResponse` but they return different sturctures, `LucentListResponse` will return you an `array of Document` while `Response` will return you a `single Document`. 
 

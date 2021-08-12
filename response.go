@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-type LucentResponse struct {
+type Response struct {
 	Data Document `json:"data"`
 	baseResponse
 }
@@ -79,7 +79,7 @@ func (lrr *LucentListResponse) GetData() []Document {
 	return lrr.Data
 }
 
-func (lrr *LucentResponse) GetData() Document {
+func (lrr *Response) GetData() Document {
 	return lrr.Data
 }
 
