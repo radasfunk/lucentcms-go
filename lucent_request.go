@@ -16,13 +16,13 @@ import (
 )
 
 type LucentRequest struct {
-	Method, EndPoint, Meta string
-	Headers, Params        map[string]string
-	Data                   map[string]interface{}
-	Timeout                time.Duration
-	Filters                map[string]interface{}
-	body                   io.Reader
-	Skip, Limit            int32
+	Method, EndPoint, Meta, Include string
+	Headers, Params                 map[string]string
+	Data                            map[string]interface{}
+	Timeout                         time.Duration
+	Filters                         map[string]interface{}
+	body                            io.Reader
+	Skip, Limit                     int32
 }
 
 func (lr *LucentRequest) AddHeaders(headers map[string]string) {
@@ -48,16 +48,6 @@ func (lr *LucentRequest) AddData(data map[string]interface{}) {
 	lr.Data = data
 }
 
-func (lr *LucentRequest) FilterWhere(key string, value interface{}) {
-	key = "filter[" + key + "]"
-	lr.Filters[key] = value
-}
-
-func (lr *LucentRequest) FilterOrWhere(key string, value interface{}) {
-	key = "filter[or][" + key + "]"
-	lr.Filters[key] = value
-}
-
 func (lr *LucentRequest) SetSkip(page, limit int32) {
 	lr.Skip = page*limit - limit
 }
@@ -66,8 +56,12 @@ func (lr *LucentRequest) SetLimit(limit int32) {
 	lr.Limit = limit
 }
 
-func (lr *LucentRequest) SetMeta(meta string) {
-	lr.Meta = meta
+func (lr *LucentRequest) SetInclude(include string) {
+	lr.Include = include
+}
+
+func (lr *LucentRequest) SetIncludeAll() {
+	lr.Include = "*"
 }
 
 func (lr *LucentRequest) prepareGetRequest() {
@@ -81,8 +75,15 @@ func (lr *LucentRequest) prepareGetRequest() {
 		queryStr = queryStr + url.QueryEscape(q) + "=" + url.QueryEscape(fmt.Sprintf("%v", v)) + "&"
 	}
 
+	if lr.Limit != 0 {
+		queryStr = queryStr + url.QueryEscape("limit") + "=" + url.QueryEscape(fmt.Sprintf("%d", lr.Limit)) + "&"
+	}
+
+	if lr.Include != "" {
+		queryStr = queryStr + url.QueryEscape("include") + "=" + url.QueryEscape(lr.Include) + "&"
+	}
+
 	queryStr = queryStr + url.QueryEscape("skip") + "=" + url.QueryEscape(fmt.Sprintf("%d", lr.Skip)) + "&"
-	queryStr = queryStr + url.QueryEscape("limit") + "=" + url.QueryEscape(fmt.Sprintf("%d", lr.Limit)) + "&"
 
 	queryStr = strings.TrimRight(queryStr, "&")
 	lr.EndPoint = fmt.Sprintf("%s?%s", lr.EndPoint, queryStr)
