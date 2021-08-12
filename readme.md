@@ -311,3 +311,14 @@ HasErrors() bool
 ### GetData()
 `GetData` method is available with both `Response` and `LucentListResponse` but they return different sturctures, `LucentListResponse` will return you an `array of Document` while `Response` will return you a `single Document`. 
 
+### Changelog
+
+Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
+
+### Contributing
+
+Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
+
+### Security
+
+If you discover any security related issues, please email hey@lucentcms.com instead of using the issue tracker.
