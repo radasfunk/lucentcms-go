@@ -224,12 +224,10 @@ func (lr *LucentRequest) UploadFromDisk(files []string) (*UploadResponse, error)
 
 	lr.body = bytes.NewBuffer([]byte(fmt.Sprintf("%v", body)))
 
-	// add file stuff
-	// add headers
-
 	lr.AddHeaders(map[string]string{
 		"Content-Type": writer.FormDataContentType(),
 	})
+
 	httpClient, request, err := lr.forgeRequest()
 
 	if err != nil {
