@@ -5,12 +5,17 @@ import (
 )
 
 type LucentResponse struct {
-	Data Document
+	Data Document `json:"data"`
 	baseResponse
 }
 
 type LucentListResponse struct {
-	Data []Document
+	Data []Document `json:"data"`
+	baseResponse
+}
+
+type UploadResponse struct {
+	Data []File `json:"data"`
 	baseResponse
 }
 
@@ -39,6 +44,31 @@ type Document struct {
 	Resource      string      `json:"resource"`
 	UpdatedAt     time.Time   `json:"updatedAt"`
 	CreatedAt     time.Time   `json:"createdAt"`
+}
+
+type File struct {
+	ID           string      `json:"id"`
+	OriginalName string      `json:"originalName"`
+	Filename     string      `json:"filename"`
+	Path         string      `json:"path"`
+	Mime         string      `json:"mime"`
+	URL          string      `json:"url"`
+	Image        string      `json:"image"`
+	Title        string      `json:"title"`
+	Description  string      `json:"description"`
+	Size         int         `json:"size"`
+	Width        int         `json:"width"`
+	Height       int         `json:"height"`
+	Alt          string      `json:"alt"`
+	Credits      interface{} `json:"credits"`
+	Checksum     string      `json:"checksum"`
+	Copyright    string      `json:"copyright"`
+	Tags         []string    `json:"tags"`
+	UploaderID   string      `json:"uploaderId"`
+	Channel      string      `json:"channel"`
+	UpdatedAt    time.Time   `json:"updatedAt"`
+	CreatedAt    time.Time   `json:"createdAt"`
+	Resource     string      `json:"resource"`
 }
 
 func (lrr *baseResponse) HasErrors() bool {

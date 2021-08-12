@@ -71,13 +71,20 @@ func anUploadRequest() {
 	}
 	c, _ := os.Getwd()
 
-	res, err := request.UploadFromDisk("a_pikachu_file.png", c+"/dev/pikachu.png")
-
-	if err != nil {
-		log.Fatalf("error %v\n", err.Error())
+	path := []string{
+		c+"/dev/pikachu.png",
+		c+"/dev/pikachu.png",
 	}
 
-	fmt.Println(res.Errors)
+	res, err := request.UploadFromDisk(path)
+
+	if err != nil {
+		fmt.Println(res.Errors)
+		log.Fatalf("\nerror %v\n", err.Error())
+	}
+
+	fmt.Println(res.Data)
+
 }
 
 func aGetRequest() {

@@ -25,12 +25,6 @@ type LucentRequest struct {
 	Skip, Limit            int32
 }
 
-type File struct {
-	Name     string      `json:"name"`
-	Content  interface{} `json:"content"`
-	Filename string      `json:"filename"`
-}
-
 func (lr *LucentRequest) AddHeaders(headers map[string]string) {
 
 	for key, value := range headers {
@@ -84,7 +78,7 @@ func (lr *LucentRequest) prepareGetRequest() {
 	}
 
 	for q, v := range lr.Filters {
-		queryStr = queryStr + url.QueryEscape(q) + "=" + url.QueryEscape(v) + "&"
+		queryStr = queryStr + url.QueryEscape(q) + "=" + url.QueryEscape(fmt.Sprintf("%v", v)) + "&"
 	}
 
 	queryStr = queryStr + url.QueryEscape("skip") + "=" + url.QueryEscape(fmt.Sprintf("%d", lr.Skip)) + "&"
@@ -199,41 +193,36 @@ func (lr *LucentRequest) Patch() (*LucentResponse, error) {
 	return lr.makePostRequest()
 }
 
-func (lr *LucentRequest) UploadFromDisk(filename, path string) (*LucentResponse, error) {
+func (lr *LucentRequest) UploadFromDisk(files []string) (*UploadResponse, error) {
 	lr.Method = http.MethodPost
-
-	file, err := os.Open(path)
-
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
 
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
-	part, err := writer.CreateFormFile("files[]", filepath.Base(path))
+
+	for i, path := range files {
+
+		file, err := os.Open(path)
+
+		if err != nil {
+			return nil, err
+		}
+		defer file.Close()
+
+		part, err := writer.CreateFormFile(fmt.Sprintf("files[%d]", i), filepath.Base(path))
+
+		if err != nil {
+			return nil, err
+		}
+		_, err = io.Copy(part, file)
+	}
+
+	err := writer.Close()
+
 	if err != nil {
 		return nil, err
 	}
-	_, err = io.Copy(part, file)
 
-	err = writer.Close()
-
-	if err != nil {
-		return nil, err
-	}
-
-	var files []File
-
-	f := File{
-		Name:     "files[]",
-		Content:  body,
-		Filename: "pikachu.png",
-	}
-
-	files = append(files, f)
-
-	lr.body = bytes.NewBuffer([]byte(fmt.Sprintf("%v", files)))
+	lr.body = bytes.NewBuffer([]byte(fmt.Sprintf("%v", body)))
 
 	// add file stuff
 	// add headers
@@ -253,16 +242,14 @@ func (lr *LucentRequest) UploadFromDisk(filename, path string) (*LucentResponse,
 		return nil, err
 	}
 
-	var response interface{}
+	var response UploadResponse
 	err = json.Unmarshal(bytes, &response)
 
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Println(response)
-
-	return nil, nil
+	return &response, nil
 }
 
 func (lr *LucentRequest) makePostRequest() (*LucentResponse, error) {
