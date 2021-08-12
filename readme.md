@@ -119,6 +119,25 @@ request, err := lc.NewRequest("documents", nil)
 request.SetMeta("articles")
 ```
 
+### Include
+To include related documents,
+
+```go
+request, err := lc.NewRequest("documents", nil)
+
+request.SetInclude("articles")
+// or
+request.SetInclude("articles,categories")
+```
+
+### IncludeAll
+To include all related documents,
+
+```go
+request, err := lc.NewRequest("documents", nil)
+
+request.SetIncludeAll()
+```
 ### Adding headers
 
 ```go

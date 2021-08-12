@@ -56,8 +56,8 @@ func (lr *Request) SetLimit(limit int32) {
 	lr.Limit = limit
 }
 
-func (lr *Request) SetInclude(include string) {
-	lr.Include = include
+func (lr *Request) SetInclude(includes string) {
+	lr.Include = includes
 }
 
 func (lr *Request) SetIncludeAll() {
