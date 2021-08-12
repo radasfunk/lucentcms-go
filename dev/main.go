@@ -72,11 +72,11 @@ func anUploadRequest() {
 	c, _ := os.Getwd()
 
 	path := []string{
-		c+"/dev/pikachu.png",
-		c+"/dev/pikachu.png",
+		c + "/dev/pikachu.png",
+		c + "/dev/pikachu.png",
 	}
 
-	res, err := request.UploadFromDisk(path)
+	res, err := request.UploadFromPath(path)
 
 	if err != nil {
 		fmt.Println(res.Errors)

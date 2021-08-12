@@ -113,25 +113,6 @@ func (lr *LucentRequest) preparePostRequest() error {
 	return nil
 }
 
-// deprecated
-func (lr *LucentRequest) prepareRequest() (*http.Client, *http.Request, error) {
-
-	// var rData interface{}
-
-	switch lr.Method {
-	case "GET", "DELETE":
-		lr.prepareGetRequest()
-	case "POST", "PUT", "PATCH":
-		// rData = "method=post"
-		lr.preparePostRequest()
-	case "UPLOAD":
-		fmt.Printf("handle upload data")
-		// rData = "method=upload"
-	}
-
-	return lr.forgeRequest()
-}
-
 func (lr *LucentRequest) forgeRequest() (*http.Client, *http.Request, error) {
 
 	httpClient := http.Client{
@@ -193,7 +174,7 @@ func (lr *LucentRequest) Patch() (*LucentResponse, error) {
 	return lr.makePostRequest()
 }
 
-func (lr *LucentRequest) UploadFromDisk(files []string) (*UploadResponse, error) {
+func (lr *LucentRequest) UploadFromPath(files []string) (*UploadResponse, error) {
 	lr.Method = http.MethodPost
 
 	body := &bytes.Buffer{}
@@ -290,37 +271,4 @@ func (lr *LucentRequest) make(httpClient *http.Client, request *http.Request) ([
 	defer resp.Body.Close()
 
 	return ioutil.ReadAll(resp.Body)
-}
-
-// deprecated
-func (lr *LucentRequest) Send() (*LucentListResponse, error) {
-
-	httpClient, request, err := lr.prepareRequest()
-
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := httpClient.Do(request)
-
-	if err != nil {
-		return nil, err
-	}
-
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-
-	if err != nil {
-		return nil, err
-	}
-
-	var LucentListResponse LucentListResponse
-	err = json.Unmarshal(body, &LucentListResponse)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &LucentListResponse, nil
 }
