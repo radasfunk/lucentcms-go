@@ -11,15 +11,6 @@ const (
 )
 
 var (
-	validMethods = map[string]bool{
-		"GET":    true,
-		"POST":   true,
-		"PUT":    true,
-		"PATCH":  true,
-		"DELETE": true,
-		"UPLOAD": true,
-	}
-
 	validEndpoints = map[string]bool{
 		"documents":  true,
 		"documents/": true,

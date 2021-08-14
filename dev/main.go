@@ -49,7 +49,7 @@ type Document struct {
 }
 
 func main() {
-	aPostRequest()
+	// aPostRequest()
 	aGetRequest()
 	// anUploadRequest()
 }

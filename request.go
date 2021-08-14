@@ -152,7 +152,7 @@ func (lr *Request) Get() (*LucentListResponse, error) {
 
 	var response LucentListResponse
 	err = json.Unmarshal(bytes, &response)
-
+	
 	if err != nil {
 		return nil, err
 	}
