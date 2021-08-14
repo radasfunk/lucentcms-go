@@ -1,7 +1,6 @@
 package lucentcmsgo
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
@@ -64,22 +63,4 @@ func TestProtectedHeadersCanNotBeChanged(t *testing.T) {
 			t.Errorf("expected %v not to be equal %v", v, val) // not empty
 		}
 	}
-}
-
-func TestRequestCanBeMade(t *testing.T) {
-
-	var data = make(map[string]interface{}, 0)
-
-	data["filter[schema]"] = "articles"
-	data["include"] = "*"
-
-	req, _ := client.NewRequest("documents", data)
-
-	res, err := req.Get()
-
-	if err != nil {
-		t.Errorf("got error %v", err.Error())
-	}
-
-	fmt.Println(res)
 }
